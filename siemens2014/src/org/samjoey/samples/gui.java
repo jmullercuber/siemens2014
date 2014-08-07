@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package siemens2014;
+package org.samjoey.samples;
 
 /**
  *

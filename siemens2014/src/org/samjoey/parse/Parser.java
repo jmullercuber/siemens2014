@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,10 +39,25 @@ public class Parser {
     private static boolean print;
 
     public static void main(String[] args) {
-        print = true;
+        print = false;
         try {
-            ArrayList<Game> games = parseGames("File:/Users/Sam/Documents/ficsgamesdb_201401_lightning2000_movetimes_1116420.pgn");
-            //System.out.println(games.get(0).getWhiteTime());
+            LinkedList<Game> games;
+            games = parseGames("File:/Users/Sam/Documents/ficsgamesdb_201401_lightning2000_movetimes_1116420.pgn");
+
+            Game game = games.get(0);
+            ArrayList<Board> boards = game.getAllBoards();
+            String[][] board = boards.get(0).getAll();
+            for (String[] y : board) {
+                for (String x : y) {
+                    if (!x.equals("")) {
+                        System.out.print(x + " ");
+                    } else {
+                        System.out.print("   ");
+                    }
+                }
+                System.out.println();
+            }
+
         } catch (URISyntaxException ex) {
             System.out.println(ex);
         } catch (IOException ex) {
@@ -49,25 +65,25 @@ public class Parser {
         }
     }
 
-    public static ArrayList<Game> parseGames(String fileLocation) throws URISyntaxException, IOException {
+    public static LinkedList<Game> parseGames(String fileLocation) throws URISyntaxException, IOException {
         File file = new File(new URI(fileLocation));
         return parseGames(file);
     }
 
-    private static ArrayList<Game> parseGames(File file) throws IOException {
+    private static LinkedList<Game> parseGames(File file) throws IOException {
         BufferedReader reader = Files.newBufferedReader(file.toPath(), Charset.forName("US-ASCII"));
-        ArrayList<String> lines = new ArrayList<>();
+        LinkedList<String> lines = new LinkedList<>();
         String line = null;
         while ((line = reader.readLine()) != null) {
             lines.add(line);
         }
-        ArrayList<String[]> separatedGames = separateGameStrings(lines);
+        LinkedList<String[]> separatedGames = separateGameStrings(lines);
         return parseGameArrays(separatedGames);
     }
 
-    private static ArrayList<String[]> separateGameStrings(ArrayList<String> lines) {
+    private static LinkedList<String[]> separateGameStrings(LinkedList<String> lines) {
         String[] gameStrings = new String[20];
-        ArrayList<String[]> separatedGameStrings = new ArrayList<>();
+        LinkedList<String[]> separatedGameStrings = new LinkedList<>();
         int last = 0;
         for (String s : lines) {
             if (s.equals("") || s.substring(0, 1).equals("[")) {
@@ -75,7 +91,6 @@ public class Parser {
                 gameStrings[last] = s;
                 last++;
             } else {
-                //System.out.println("2: " + s);
                 gameStrings[last] = s;
                 separatedGameStrings.add(gameStrings.clone());
                 for (int i = 0; i < 20; i++) {
@@ -88,8 +103,8 @@ public class Parser {
         return separatedGameStrings;
     }
 
-    private static ArrayList<Game> parseGameArrays(ArrayList<String[]> separatedGames) {
-        ArrayList<Game> games = new ArrayList<>();
+    private static LinkedList<Game> parseGameArrays(LinkedList<String[]> separatedGames) {
+        LinkedList<Game> games = new LinkedList<>();
         int count = 0;
         for (String[] strings : separatedGames) {
             Game game = new Game();
@@ -115,17 +130,23 @@ public class Parser {
                         }
                     }
                     if (s.startsWith("1")) {
-                        ArrayList<Board> boards = parseBoards(s, game);
+                        LinkedList<Board> boards = parseBoards(s, game);
+                        for (Board b : boards) {
+                            game.addBoard(b);
+                        }
                     }
                 }
             }
             games.add(game);
+            if (count == 2) {
+                //break;
+            }
         }
         return games;
     }
 
-    private static ArrayList<Board> parseBoards(String s, Game game) {
-        ArrayList<Double> times = new ArrayList<>();
+    private static LinkedList<Board> parseBoards(String s, Game game) {
+        LinkedList<Double> times = new LinkedList<>();
         while (true) {
             int i = s.indexOf(" {[");
             if (i == -1) {
@@ -149,8 +170,8 @@ public class Parser {
         }
         game.setBlackTime(blackTime);
         game.setWhiteTime(whiteTime);
-        ArrayList<String> split = new ArrayList<>(Arrays.asList(s.split(" ")));
-        ArrayList<String> moves = new ArrayList<>();
+        LinkedList<String> split = new LinkedList<>(Arrays.asList(s.split(" ")));
+        LinkedList<String> moves = new LinkedList<>();
         for (int i = 0; i < split.size(); i++) {
             if (split.get(i).contains("{")) {
                 break;
@@ -161,11 +182,10 @@ public class Parser {
         }
         if (game.getPlyCount() != moves.size()) {
             System.out.println("MISMATCH: " + game.getPlyCount() + "," + moves.size() + ":" + moves.get(moves.size() - 1) + ":" + s);
-
         }
-        ArrayList<Board> boards = new ArrayList<>();
+        LinkedList<Board> boards = new LinkedList<>();
         Board last = new Board();
-        last.setPositions(Board.INITIAL_BOARD);
+        last.setPositions(Board.INITIAL_BOARD.clone());
         last.setPlayer(0);
         last.setTime(0);
         boards.add(last);
@@ -182,10 +202,16 @@ public class Parser {
             String special = checkForSpecialMoves(str);
             String piece = whatPiece(str);
             String pawnProm = "";
+            if (special.contains("5")) {
+                pawnProm = str.substring(str.indexOf("=") + 1, str.indexOf("=") + 2);
+            }
             if (!piece.equals("PAWN")) {
                 str = str.substring(1);
             }
-            String[][] old = last.getAll();
+            String[][] old = new String[8][8];
+            for (int a = 0; a < 8; a++) {
+                old[a] = last.getAll()[a].clone();
+            }
             if (special.contains("1")) {
                 if (now.getPlayer() == 1) {
                     old[0][6] = old[0][4];
@@ -228,7 +254,7 @@ public class Parser {
                 int disAmRank = 0;
                 if (str.length() == 3) {
                     String f = str.substring(0, 1);
-                    if (f.equals("a") || f.equals("b") || f.equals("c") || f.equals("d") || f.equals("e") || f.equals("f") || f.equals("g") || f.equals("h")) {
+                    if (fileToNum(f) != 0) {
                         disAmFile = fileToNum(f);
                     } else {
                         disAmRank = Integer.parseInt(f);
@@ -246,48 +272,131 @@ public class Parser {
                     file = fileToNum(str.substring(0, 1));
                     rank = Integer.parseInt(str.substring(1));
                 } catch (Exception e) {
-                    System.out.println(i);
-                    System.out.println(str.equals("O-O-O"));
-                    System.out.println(old[0][2]);
-                    System.out.println(old[0][4]);
-                    System.out.println(disAmFile + "," + disAmRank + "," + file + "," + rank + "," + str);
-                    System.out.println(special);
-                    System.out.println(orig);
-                    System.exit(1);
                 }
-                disAmFile --;
-                disAmRank --;
-                file --;
-                rank --;
-                if(piece.equals("PAWN")){
-                    if(special.contains("7")){ //Pawn has to move diagonally
+                disAmFile--;
+                disAmRank--;
+                file--;
+                rank--;
+                if (piece.equals("PAWN")) { //No dealing with en passant yet
+
+                    if (special.contains("7")) { //Pawn has to move diagonally
                         //DisAm Issue
-                    } else{
-                        if(now.getPlayer() == 1){
-                            if(old[rank + 1][file].equals("WP")){
-                                old[rank + 1][file] = "";
-                                old[rank][file] = "WP";
+
+                        if (now.getPlayer() == 1) {
+                            String p1 = "";
+                            String p2 = "";
+                            try {
+                                p1 = old[rank - 1][file - 1];
+                            } catch (Exception e) {
                             }
-                            if(old[rank + 2][file].equals("WP")){
-                                old[rank + 2][file] = "";
+                            try {
+                                p2 = old[rank - 1][file + 1];
+                            } catch (Exception e) {
+                            }
+                            String c = old[rank][file]; //For dealing with en passant issue
+                            if (p1.equals("WP") && p2.equals("WP")) {
                                 old[rank][file] = "WP";
+                                old[rank - 1][disAmFile] = "";
+                            } else if (p1.equals("WP")) {
+                                old[rank][file] = "WP";
+                                old[rank - 1][file - 1] = "";
+                            } else if (p2.equals("WP")) {
+                                old[rank][file] = "WP";
+                                old[rank - 1][file + 1] = "";
+                            } else {
+                                if (print) {
+                                    System.out.println("ERROR: NO PAWN FOUND, P1");
+                                }
+                            }
+                        } else {
+                            String p1 = "";
+                            String p2 = "";
+                            try {
+                                p1 = old[rank + 1][file - 1];
+                            } catch (Exception e) {
+                            }
+                            try {
+                                p2 = old[rank + 1][file + 1];
+                            } catch (Exception e) {
+                            }
+                            String c = old[rank][file]; //For dealing with en passant issue
+                            if (p1.equals("BP") && p2.equals("BP")) {
+                                old[rank][file] = "BP";
+                                old[rank + 1][disAmFile] = "";
+                            } else if (p1.equals("BP")) {
+                                old[rank][file] = "BP";
+                                old[rank + 1][file - 1] = "";
+                            } else if (p2.equals("BP")) {
+                                old[rank][file] = "BP";
+                                old[rank + 1][file + 1] = "";
+                            } else {
+                                if (print) {
+                                    System.out.println("ERROR: NO PAWN FOUND, P2");
+                                }
                             }
                         }
-                        if(now.getPlayer() == 2){
-                            if(old[rank - 1][file].equals("WP")){
-                                old[rank - 1][file] = "";
-                                old[rank][file] = "WP";
+                    } else {
+                        if (now.getPlayer() == 1) {
+                            try {
+                                if (old[rank - 1][file].equals("WP")) {
+                                    old[rank - 1][file] = "";
+                                    old[rank][file] = "WP";
+                                } else if (old[rank - 2][file].equals("WP")) {
+                                    old[rank - 2][file] = "";
+                                    old[rank][file] = "WP";
+                                }
+                            } catch (Exception e) {
                             }
-                            if(old[rank - 2][file].equals("WP")){
-                                old[rank - 2][file] = "";
-                                old[rank][file] = "WP";
+                        }
+                        if (now.getPlayer() == 2) {
+                            try {
+                                if (old[rank + 1][file].equals("BP")) {
+                                    old[rank + 1][file] = "";
+                                    old[rank][file] = "BP";
+                                } else if (old[rank + 2][file].equals("BP")) {
+                                    old[rank + 2][file] = "";
+                                    old[rank][file] = "BP";
+                                }
+                            } catch (Exception e) {
                             }
                         }
                     }
+                    if (!pawnProm.equals("")) {
+                        String c = "B";
+                        if (now.getPlayer() == 1) {
+                            c = "W";
+                        }
+                        old[rank][file] = c + pawnProm;
+                    }
                 }
             }
+            now.setPositions(old.clone());
+            boards.add(now);
+            last = new Board();
+            last.setPlayer(now.getPlayer());
+            last.setPositions(now.getAll().clone());
+            last.setTime(now.getTime());
+            last.setOpponentInCheck(now.isOpponentInCheck());
+            if (print) {
+                for (String[] y : now.getAll()) {
+                    for (String x : y) {
+                        if (x != "") {
+                            System.out.print(x + " ");
+                        } else {
+                            System.out.print("   ");
+                        }
+                    }
+                    System.out.println();
+                }
+                System.out.println("//");
+            }
         }
-        return null;
+        if (print) {
+            System.out.println();
+            System.out.println();
+        }
+        print = false;
+        return boards;
     }
 
     /*

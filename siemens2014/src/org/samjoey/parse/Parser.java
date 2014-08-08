@@ -25,8 +25,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.samjoey.model.Board;
 import org.samjoey.model.Game;
 
@@ -38,24 +36,30 @@ public class Parser {
 
     private static boolean print;
 
+    /**
+     * Method for testing purposes. This will have no use in the actual program.
+     */
     public static void main(String[] args) {
         print = false;
         try {
             LinkedList<Game> games;
             games = parseGames("File:/Users/Sam/Documents/ficsgamesdb_201401_lightning2000_movetimes_1116420.pgn");
 
-            Game game = games.get(0);
+            //Print out a random game
+            Game game = games.get((int)(Math.random() * games.size()));
             ArrayList<Board> boards = game.getAllBoards();
-            String[][] board = boards.get(0).getAll();
-            for (String[] y : board) {
-                for (String x : y) {
-                    if (!x.equals("")) {
-                        System.out.print(x + " ");
-                    } else {
-                        System.out.print("   ");
+            for (Board board : boards) {
+                for (String[] y : board.getAll()) {
+                    for (String x : y) {
+                        if (!x.equals("")) {
+                            System.out.print(x + " ");
+                        } else {
+                            System.out.print("   ");
+                        }
                     }
+                    System.out.println();
                 }
-                System.out.println();
+                System.out.println("/////");
             }
 
         } catch (URISyntaxException ex) {
@@ -65,15 +69,29 @@ public class Parser {
         }
     }
 
+    /**
+     * A method to initiate the parser. Takes a file location and retrieves the file to parse and parses it.
+     * @param fileLocation the location of the pgn file to parse.
+     * @return a list of games parsed from the file at fileLocation.
+     * @throws URISyntaxException the location format is not valid.
+     * @throws IOException there was an issue reading the file.
+     */
     public static LinkedList<Game> parseGames(String fileLocation) throws URISyntaxException, IOException {
         File file = new File(new URI(fileLocation));
         return parseGames(file);
     }
 
+    /**
+     * Internal method called by parseGames(String fileLocation) after a file has been created.
+     * @param file the file to parse from.
+     * @returna list of games parsed from the file file.
+     * @throws IOException 
+     */
     private static LinkedList<Game> parseGames(File file) throws IOException {
         BufferedReader reader = Files.newBufferedReader(file.toPath(), Charset.forName("US-ASCII"));
         LinkedList<String> lines = new LinkedList<>();
         String line = null;
+        //Read the input into a linked list.
         while ((line = reader.readLine()) != null) {
             lines.add(line);
         }
@@ -81,6 +99,12 @@ public class Parser {
         return parseGameArrays(separatedGames);
     }
 
+    /**
+     * Parses the initial lines into 'sets' that describe a game. Each set can be a maximum of 20 lines and is described by an array.
+     * This is an internal method.
+     * @param lines the input to separate
+     * @return 
+     */
     private static LinkedList<String[]> separateGameStrings(LinkedList<String> lines) {
         String[] gameStrings = new String[20];
         LinkedList<String[]> separatedGameStrings = new LinkedList<>();
@@ -103,6 +127,12 @@ public class Parser {
         return separatedGameStrings;
     }
 
+    /**
+     * Parses arrays of strings into a game. Each array describes a game from the pgn.
+     * This is an internal method.
+     * @param separatedGames from separateGameStrings(LinkedList<String> lines).
+     * @return 
+     */
     private static LinkedList<Game> parseGameArrays(LinkedList<String[]> separatedGames) {
         LinkedList<Game> games = new LinkedList<>();
         int count = 0;
@@ -112,12 +142,15 @@ public class Parser {
             for (String s : strings) {
 
                 if (s != null) {
+                    //Get how much time is allotted to each player
                     if (s.contains("TimeControl")) {
                         game.setTimeAllowedPerPlayer(Integer.parseInt(s.substring(s.indexOf("\"") + 1, s.indexOf("+"))));
                     }
+                    //Get how many half moves were played in the game
                     if (s.contains("PlyCount")) {
                         game.setPlyCount(Integer.parseInt(s.substring(s.indexOf("\"") + 1, s.indexOf("\"", s.indexOf("\"") + 1))));
                     }
+                    //Determine the result of the game
                     if (s.contains("Result")) {
                         if (s.contains("1-0")) {
                             game.setWinner(1);
@@ -129,24 +162,37 @@ public class Parser {
                             game.setWinner(0);
                         }
                     }
+                    //Parse the actual moves
                     if (s.startsWith("1")) {
+                        //Parse boards from the string of moves.
                         LinkedList<Board> boards = parseBoards(s, game);
+                        //Add the boards individually to the game
                         for (Board b : boards) {
                             game.addBoard(b);
                         }
                     }
                 }
             }
+            //Add the game to the list of games
             games.add(game);
-            if (count == 2) {
-                //break;
-            }
+            //To limit the number of games
+//            if (count == 2) {
+//                //break;
+//            }
         }
         return games;
     }
 
+    /**
+     * Parses string of moves into a list of boards.
+     * This is an internal method.
+     * @param s the string of moves.
+     * @param game the game to parse into.
+     * @return 
+     */
     private static LinkedList<Board> parseBoards(String s, Game game) {
         LinkedList<Double> times = new LinkedList<>();
+        //Remove time markers
         while (true) {
             int i = s.indexOf(" {[");
             if (i == -1) {
@@ -158,8 +204,10 @@ public class Parser {
             Double t = Double.parseDouble(time.substring(time.indexOf(" ", 1) + 1, time.indexOf("]")));
             times.add(t);
         }
+        //Variables to represent each player's timess
         Double whiteTime = new Double(0);
         Double blackTime = new Double(0);
+        //Add up the times
         for (int i = 0; i < game.getPlyCount(); i++) {
             Double time = times.get(i);
             if (i % 2 == 0) {
@@ -168,50 +216,75 @@ public class Parser {
                 blackTime = blackTime + time;
             }
         }
+        //Set the times
         game.setBlackTime(blackTime);
         game.setWhiteTime(whiteTime);
+        //Separate the string into separate moves
         LinkedList<String> split = new LinkedList<>(Arrays.asList(s.split(" ")));
         LinkedList<String> moves = new LinkedList<>();
         for (int i = 0; i < split.size(); i++) {
-            if (split.get(i).contains("{")) {
+            if (split.get(i).contains("{")) { // Signifies end of moves in moves string
                 break;
             }
             if (!split.get(i).contains(".")) {
                 moves.add(split.get(i));
             }
         }
+        //The number of plies should equal the number of moves. Report if this is not true. (Note: has not been reported after numerous tests.)
         if (game.getPlyCount() != moves.size()) {
             System.out.println("MISMATCH: " + game.getPlyCount() + "," + moves.size() + ":" + moves.get(moves.size() - 1) + ":" + s);
         }
+        //Start creating boards
         LinkedList<Board> boards = new LinkedList<>();
         Board last = new Board();
+        //The first board will always be the initial board
         last.setPositions(Board.INITIAL_BOARD.clone());
+        //Player starts at 0 (no one played the first board, it was set up
         last.setPlayer(0);
         last.setTime(0);
+        //Add it
         boards.add(last);
+        //Parse through each move and create a board for it
         for (int i = 0; i < moves.size(); i++) {
+            //Get the move
             String str = moves.get(i);
-            String orig = str;
+            //Copy it in case of edit
+            String orig = new String(str);
             Board now = new Board();
+            //Set the player
             if (last.getPlayer() == 0 || last.getPlayer() == 2) {
                 now.setPlayer(1);
             } else {
                 now.setPlayer(2);
             }
+            
+            //For debugging purposes, print information if print is true
+            if (print) {
+                System.out.println(orig);
+                System.out.println(now.getPlayer());
+            }
+            //Set the time for the move
             now.setTime(times.get(i));
+            //Check for special cases in the move
             String special = checkForSpecialMoves(str);
+            //Check what piece this move moves.
             String piece = whatPiece(str);
+            //For holding pawn promos
             String pawnProm = "";
+            //Get the pawn promo
             if (special.contains("5")) {
                 pawnProm = str.substring(str.indexOf("=") + 1, str.indexOf("=") + 2);
             }
+            //Remove the piece indicator. Pawns don't have indicators
             if (!piece.equals("PAWN")) {
                 str = str.substring(1);
             }
+            //Copy the previous
             String[][] old = new String[8][8];
             for (int a = 0; a < 8; a++) {
                 old[a] = last.getAll()[a].clone();
             }
+            //King castle
             if (special.contains("1")) {
                 if (now.getPlayer() == 1) {
                     old[0][6] = old[0][4];
@@ -225,7 +298,7 @@ public class Parser {
                     old[7][5] = old[7][7];
                     old[7][7] = "";
                 }
-            } else if (special.contains("2")) {
+            } else if (special.contains("2")) { //Queen castle
                 if (now.getPlayer() == 1) {
                     old[0][2] = old[0][4];
                     old[0][4] = "";
@@ -238,18 +311,19 @@ public class Parser {
                     old[7][3] = old[7][7];
                     old[7][7] = "";
                 }
-            } else if (!special.contains("O-O") && !special.contains("O-O-O")) {
-                if (special.contains("3") || special.contains("4")) {
+            } else {
+                if (special.contains("3") || special.contains("4")) { //Set opponent as being in check
                     now.setOpponentInCheck(true);
                     str = str.substring(0, str.length() - 1);
                 }
-                if (special.contains("5")) {
+                if (special.contains("5")) { //Get pawn promo and remove it from the move text
                     pawnProm = whatPiece(str.substring(0, str.length() - 1));
                     str = str.substring(0, str.length() - 2);
                 }
-                if (special.contains("7")) {
+                if (special.contains("7")) { //Remove the 'x' is there has been a capture
                     str = str.substring(0, str.indexOf("x")) + str.substring(str.indexOf("x") + 1);
                 }
+                //Get any notation for disambiguation
                 int disAmFile = 0;
                 int disAmRank = 0;
                 if (str.length() == 3) {
@@ -266,6 +340,8 @@ public class Parser {
                     disAmRank = Integer.parseInt(str.substring(1, 2));
                     str = str.substring(2);
                 }
+
+                //Get the file and rank for the move
                 int file = 0;
                 int rank = 0;
                 try {
@@ -273,12 +349,13 @@ public class Parser {
                     rank = Integer.parseInt(str.substring(1));
                 } catch (Exception e) {
                 }
+                //Convert to computer numbers
                 disAmFile--;
                 disAmRank--;
                 file--;
                 rank--;
+                //Move pawn if the move is for a pawn
                 if (piece.equals("PAWN")) { //No dealing with en passant yet
-
                     if (special.contains("7")) { //Pawn has to move diagonally
                         //DisAm Issue
 
@@ -369,6 +446,168 @@ public class Parser {
                         old[rank][file] = c + pawnProm;
                     }
                 }
+                //Move bishops
+                if (piece.equals("BISHOP")) {
+                    if (now.getPlayer() == 1) {
+                        String b1 = null;
+                        int b1f = -1;
+                        int b1r = -1;
+                        String b2 = null;
+                        int b2f = -1;
+                        int b2r = -1;
+                        for (int y = 0; y < 8; y++) {
+                            for (int x = 0; x < 8; x++) {
+                                if (old[y][x].equals("WB")) {
+                                    if (b1 == null) {
+                                        b1 = "WB";
+                                        b1f = x;
+                                        b1r = y;
+                                    } else {
+                                        b2 = "WB";
+                                        b2f = x;
+                                        b2r = y;
+                                    }
+                                }
+                            }
+                        }
+                        if (b1 != null) {
+                            if (print) {
+                                System.out.println(file - b1f);
+                                System.out.println(rank - b1r);
+                            }
+                            if (Math.abs(file) - b1f != Math.abs(rank - b1r)) {
+                                b1 = null;
+                                b1f = -1;
+                                b1r = -1;
+                            }
+                        }
+                        if (b2 != null) {
+                            if (print) {
+                                System.out.println(file - b2f);
+                                System.out.println(rank - b2r);
+                            }
+                            if (Math.abs(file - b2f) != Math.abs(rank - b2r)) {
+                                b2 = null;
+                                b2f = -1;
+                                b2r = -1;
+                            }
+                        }
+                        if (b1 != null && b2 != null) {
+                            if (disAmFile != -1) {
+                                if (b1f != disAmFile) {
+                                    b1 = null;
+                                    b1f = -1;
+                                    b1r = -1;
+                                }
+                                if (b2f != disAmFile) {
+                                    b2 = null;
+                                    b2f = -1;
+                                    b2r = -1;
+                                }
+                            }
+                            if (disAmRank != -1) {
+                                if (b1r != disAmRank) {
+                                    b1 = null;
+                                    b1f = -1;
+                                    b1r = -1;
+                                }
+                                if (b2r != disAmRank) {
+                                    b2 = null;
+                                    b2f = -1;
+                                    b2r = -1;
+                                }
+                            }
+                        }
+                        if (b1 != null) {
+                            old[rank][file] = "WB";
+                            old[b1r][b1f] = "   ";
+                        } else {
+                            old[rank][file] = "WB";
+                            try{
+                            old[b2r][b2f] = "   ";
+                            } catch(Exception e){}
+                        }
+                    } else {
+                        String b1 = null;
+                        int b1f = -1;
+                        int b1r = -1;
+                        String b2 = null;
+                        int b2f = -1;
+                        int b2r = -1;
+                        for (int y = 0; y < 8; y++) {
+                            for (int x = 0; x < 8; x++) {
+                                if (old[y][x].equals("BB")) {
+                                    if (b1 == null) {
+                                        b1 = "BB";
+                                        b1f = x;
+                                        b1r = y;
+                                    } else {
+                                        b2 = "BB";
+                                        b2f = x;
+                                        b2r = y;
+                                    }
+                                }
+                            }
+                        }
+                        if (b1 != null) {
+                            if (print) {
+                                System.out.println(file - b1f);
+                                System.out.println(rank - b1r);
+                            }
+                            if (Math.abs(file) - b1f != Math.abs(rank - b1r)) {
+                                b1 = null;
+                                b1f = -1;
+                                b1r = -1;
+                            }
+                        }
+                        if (b2 != null) {
+                            if (print) {
+                                System.out.println(file - b2f);
+                                System.out.println(rank - b2r);
+                            }
+                            if (Math.abs(file - b2f) != Math.abs(rank - b2r)) {
+                                b2 = null;
+                                b2f = -1;
+                                b2r = -1;
+                            }
+                        }
+                        if (b1 != null && b2 != null) {
+                            if (disAmFile != -1) {
+                                if (b1f != disAmFile) {
+                                    b1 = null;
+                                    b1f = -1;
+                                    b1r = -1;
+                                }
+                                if (b2f != disAmFile) {
+                                    b2 = null;
+                                    b2f = -1;
+                                    b2r = -1;
+                                }
+                            }
+                            if (disAmRank != -1) {
+                                if (b1r != disAmRank) {
+                                    b1 = null;
+                                    b1f = -1;
+                                    b1r = -1;
+                                }
+                                if (b2r != disAmRank) {
+                                    b2 = null;
+                                    b2f = -1;
+                                    b2r = -1;
+                                }
+                            }
+                        }
+                        if (b1 != null) {
+                            old[rank][file] = "BB";
+                            old[b1r][b1f] = "   ";
+                        } else {
+                            old[rank][file] = "BB";
+                            try{
+                            old[b2r][b2f] = "   ";
+                            } catch(Exception e){}
+                        }
+                    }
+                }
             }
             now.setPositions(old.clone());
             boards.add(now);
@@ -378,15 +617,20 @@ public class Parser {
             last.setTime(now.getTime());
             last.setOpponentInCheck(now.isOpponentInCheck());
             if (print) {
+                int count = 0;
+                System.out.println("   |A  |B  |C  |D  |E  |F  |G  |H");
                 for (String[] y : now.getAll()) {
+                    count++;
+                    System.out.print(count + ": |");
                     for (String x : y) {
                         if (x != "") {
-                            System.out.print(x + " ");
+                            System.out.print(x + " |");
                         } else {
-                            System.out.print("   ");
+                            System.out.print("   |");
                         }
                     }
                     System.out.println();
+                    System.out.println("-------------------------------------");
                 }
                 System.out.println("//");
             }
@@ -434,6 +678,7 @@ public class Parser {
         return ret;
     }
 
+    //Gets the piece type
     private static String whatPiece(String str) {
         String s = str.substring(0, 1);
         if (s.equals("K")) {

@@ -1,0 +1,46 @@
+function GameLooper(initialGame, calcList) {
+	/*
+	 To do:
+	 research how rhino deals with undefined vs null
+	 //figure out type of error open() should throw
+	 	nope, from MDN I understand how to throw Error
+	 implement calculate()
+	 implement read() or move functionality to different class
+	*/
+	
+	//----------------------Attributes----------------------
+	
+	// reference variable to the current "Game" under analysis
+	this.currentGame = null;
+	if (arguments.length > 0) {
+		this.currentGame = initialGame;
+	}
+	
+	// keep track of which calculators apply to this GL
+	this.calcs = [];
+	if (arguments.length > 1) {
+		// only the driver should really be doing this, so don't worry about Java arrays at all
+		this.calcs = calcList.splice();	// Array.splice() is a copy
+	}
+	
+	//------------------------Methods------------------------
+	
+	// Open a Game so that we can start dealing with it. Throw an {ErrorNameHere} error if another Game is already open.
+	this.open = function(game) {
+		if (currentGame != null) {
+			throw new Error("AlreadyInUse");
+		}
+		this.currentGame = game;
+	}
+
+	// Close the currentGame so another Game can be used
+	this.close = function() {
+		currentGame = null;
+	}
+	
+	// addCalculator() makes each GameLooper different. Calculates different stuff
+	this.addCalculator = function(oneCalc) {
+		this.calcs.push(oneCalc);
+	}
+	
+}

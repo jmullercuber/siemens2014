@@ -23,13 +23,13 @@ public class Board {
 
     //The initial board layout. Just like a game of chess.
     public static final String[][] INITIAL_BOARD = {{"WR", "WN", "WB", "WQ", "WK", "WB", "WN", "WR"},
-                                             {"WP", "WP", "WP", "WP", "WP", "WP", "WP", "WP"},
-                                             {"", "", "", "", "", "", "", ""},
-                                             {"", "", "", "", "", "", "", ""},
-                                             {"", "", "", "", "", "", "", ""},
-                                             {"", "", "", "", "", "", "", ""},
-                                             {"BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP"},
-                                             {"BR", "BN", "BB", "BQ", "BK", "BB", "BN", "BR"}};
+                                                    {"WP", "WP", "WP", "WP", "WP", "WP", "WP", "WP"},
+                                                    {"", "", "", "", "", "", "", ""},
+                                                    {"", "", "", "", "", "", "", ""},
+                                                    {"", "", "", "", "", "", "", ""},
+                                                    {"", "", "", "", "", "", "", ""},
+                                                    {"BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP"},
+                                                    {"BR", "BN", "BB", "BQ", "BK", "BB", "BN", "BR"}};
     
     
     private String[][] pieces; //The piece layout for this board/turn

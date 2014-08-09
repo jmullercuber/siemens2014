@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Arrays;
+import java.util.Scanner;
 import org.samjoey.model.Board;
 import org.samjoey.model.Game;
 
@@ -35,31 +36,107 @@ import org.samjoey.model.Game;
 public class Parser {
 
     private static boolean print;
+    static boolean print2;
+    static boolean print3;
+    static boolean print4;
 
     /**
      * Method for testing purposes. This will have no use in the actual program.
      */
     public static void main(String[] args) {
         print = false;
+        print2 = false;
+        print3 = false;
+        print4 = true;
+        int n = 6579;
+        n--;
         try {
             LinkedList<Game> games;
+            //JOEY: you will need to change this in order to test.
             games = parseGames("File:/Users/Sam/Documents/ficsgamesdb_201401_lightning2000_movetimes_1116420.pgn");
-
+            System.out.println("DONE");
             //Print out a random game
-            Game game = games.get((int)(Math.random() * games.size()));
-            ArrayList<Board> boards = game.getAllBoards();
-            for (Board board : boards) {
-                for (String[] y : board.getAll()) {
-                    for (String x : y) {
-                        if (!x.equals("")) {
-                            System.out.print(x + " ");
-                        } else {
-                            System.out.print("   ");
+            if (print2) {
+                int get = (int) (Math.random() * games.size());
+
+                Game game = games.get(get);
+                ArrayList<Board> boards = game.getAllBoards();
+
+                for (Board board : boards) {
+                    System.out.println("   |A  |B  |C  |D  |E  |F  |G  |H");
+                    for (int p = 7; p >= 0; p--) {
+                        String[] y = board.getAll()[p];
+                        System.out.print((p + 1) + ": |");
+                        for (String x : y) {
+                            if (x != "") {
+                                System.out.print(x + " |");
+                            } else {
+                                System.out.print("   |");
+                            }
+                        }
+                        System.out.println();
+                        System.out.println("-------------------------------------");
+                    }
+                    System.out.println("//");
+                }
+                System.out.println(get);
+                System.out.println(game.getWinner());
+                System.out.println(game.getPlyCount());
+            }
+            if (print3) {
+                System.out.println("3");
+                while (true) {
+                    int get = (int) (Math.random() * games.size());
+                    Game game = games.get(get);
+                    if (game.getWinType() != null && game.getWinType().equals("Checkmated")) {
+                        Board board = game.getAllBoards().get(game.getAllBoards().size() - 1);
+                        System.out.println("   |A  |B  |C  |D  |E  |F  |G  |H");
+                        for (int p = 7; p >= 0; p--) {
+                            String[] y = board.getAll()[p];
+                            System.out.print((p + 1) + ": |");
+                            for (String x : y) {
+                                if (x != "") {
+                                    System.out.print(x + " |");
+                                } else {
+                                    System.out.print("   |");
+                                }
+                            }
+                            System.out.println();
+                            System.out.println("-------------------------------------");
+                        }
+
+                        System.out.println(get + 1);
+                        Scanner s = new Scanner(System.in);
+                        while (!s.hasNext()) {
                         }
                     }
-                    System.out.println();
                 }
-                System.out.println("/////");
+
+            }
+            if (print4) {
+                System.out.println("3");
+                Game game = games.get(n);
+                int count = 0;
+                for (Board board : game.getAllBoards()) {
+                    count++;
+                    System.out.println(count);
+                    System.out.println("   |A  |B  |C  |D  |E  |F  |G  |H");
+                    for (int p = 7; p >= 0; p--) {
+                        String[] y = board.getAll()[p];
+                        System.out.print((p + 1) + ": |");
+                        for (String x : y) {
+                            if (x != "") {
+                                System.out.print(x + " |");
+                            } else {
+                                System.out.print("   |");
+                            }
+                        }
+                        System.out.println();
+                        System.out.println("-------------------------------------");
+                    }
+                    System.out.println("//");
+                }
+
             }
 
         } catch (URISyntaxException ex) {
@@ -70,7 +147,9 @@ public class Parser {
     }
 
     /**
-     * A method to initiate the parser. Takes a file location and retrieves the file to parse and parses it.
+     * A method to initiate the parser. Takes a file location and retrieves the
+     * file to parse and parses it.
+     *
      * @param fileLocation the location of the pgn file to parse.
      * @return a list of games parsed from the file at fileLocation.
      * @throws URISyntaxException the location format is not valid.
@@ -82,10 +161,12 @@ public class Parser {
     }
 
     /**
-     * Internal method called by parseGames(String fileLocation) after a file has been created.
+     * Internal method called by parseGames(String fileLocation) after a file
+     * has been created.
+     *
      * @param file the file to parse from.
      * @returna list of games parsed from the file file.
-     * @throws IOException 
+     * @throws IOException
      */
     private static LinkedList<Game> parseGames(File file) throws IOException {
         BufferedReader reader = Files.newBufferedReader(file.toPath(), Charset.forName("US-ASCII"));
@@ -100,10 +181,12 @@ public class Parser {
     }
 
     /**
-     * Parses the initial lines into 'sets' that describe a game. Each set can be a maximum of 20 lines and is described by an array.
-     * This is an internal method.
+     * Parses the initial lines into 'sets' that describe a game. Each set can
+     * be a maximum of 20 lines and is described by an array. This is an
+     * internal method.
+     *
      * @param lines the input to separate
-     * @return 
+     * @return
      */
     private static LinkedList<String[]> separateGameStrings(LinkedList<String> lines) {
         String[] gameStrings = new String[20];
@@ -128,10 +211,11 @@ public class Parser {
     }
 
     /**
-     * Parses arrays of strings into a game. Each array describes a game from the pgn.
-     * This is an internal method.
+     * Parses arrays of strings into a game. Each array describes a game from
+     * the pgn. This is an internal method.
+     *
      * @param separatedGames from separateGameStrings(LinkedList<String> lines).
-     * @return 
+     * @return
      */
     private static LinkedList<Game> parseGameArrays(LinkedList<String[]> separatedGames) {
         LinkedList<Game> games = new LinkedList<>();
@@ -162,6 +246,15 @@ public class Parser {
                             game.setWinner(0);
                         }
                     }
+                    if (s.contains("checkmated")) {
+                        game.setWinType("Checkmated");
+                    }
+                    if (s.contains("resigns")) {
+                        game.setWinType("Resignation");
+                    }
+                    if (s.contains("drawn")) {
+                        game.setWinType("Draw");
+                    }
                     //Parse the actual moves
                     if (s.startsWith("1")) {
                         //Parse boards from the string of moves.
@@ -184,11 +277,11 @@ public class Parser {
     }
 
     /**
-     * Parses string of moves into a list of boards.
-     * This is an internal method.
+     * Parses string of moves into a list of boards. This is an internal method.
+     *
      * @param s the string of moves.
      * @param game the game to parse into.
-     * @return 
+     * @return
      */
     private static LinkedList<Board> parseBoards(String s, Game game) {
         LinkedList<Double> times = new LinkedList<>();
@@ -257,7 +350,7 @@ public class Parser {
             } else {
                 now.setPlayer(2);
             }
-            
+
             //For debugging purposes, print information if print is true
             if (print) {
                 System.out.println(orig);
@@ -303,13 +396,13 @@ public class Parser {
                     old[0][2] = old[0][4];
                     old[0][4] = "";
                     old[0][3] = old[0][7];
-                    old[0][7] = "";
+                    old[0][0] = "";
                 }
                 if (now.getPlayer() == 2) {
                     old[7][2] = old[7][4];
                     old[7][4] = "";
                     old[7][3] = old[7][7];
-                    old[7][7] = "";
+                    old[7][0] = "";
                 }
             } else {
                 if (special.contains("3") || special.contains("4")) { //Set opponent as being in check
@@ -317,7 +410,7 @@ public class Parser {
                     str = str.substring(0, str.length() - 1);
                 }
                 if (special.contains("5")) { //Get pawn promo and remove it from the move text
-                    pawnProm = whatPiece(str.substring(0, str.length() - 1));
+                    pawnProm = str.substring(str.indexOf("=") + 1);
                     str = str.substring(0, str.length() - 2);
                 }
                 if (special.contains("7")) { //Remove the 'x' is there has been a capture
@@ -449,163 +542,400 @@ public class Parser {
                 //Move bishops
                 if (piece.equals("BISHOP")) {
                     if (now.getPlayer() == 1) {
-                        String b1 = null;
-                        int b1f = -1;
-                        int b1r = -1;
-                        String b2 = null;
-                        int b2f = -1;
-                        int b2r = -1;
-                        for (int y = 0; y < 8; y++) {
-                            for (int x = 0; x < 8; x++) {
-                                if (old[y][x].equals("WB")) {
-                                    if (b1 == null) {
-                                        b1 = "WB";
-                                        b1f = x;
-                                        b1r = y;
-                                    } else {
-                                        b2 = "WB";
-                                        b2f = x;
-                                        b2r = y;
+                        ArrayList<int[]> bs = new ArrayList<>();
+                        for (int r = 0; r < 8; r++) {
+                            for (int f = 0; f < 8; f++) {
+                                if (old[r][f].equals("WB")) {
+                                    int[] x = new int[2];
+                                    x[0] = r;
+                                    x[1] = f;
+                                    bs.add(x);
+                                }
+                            }
+                        }
+                        for (int j = 0; j < bs.size(); j++) {
+                            int[] x = bs.get(j);
+                            if (Math.abs(rank - x[0]) != Math.abs(file - x[1])) {
+                                bs.remove(x);
+                            }
+                        }
+                        for (int j = 0; j < bs.size(); j++) {
+                            int[] x = bs.get(j);
+                            for (int r = 0; r < 8; r++) {
+                                if ((r > rank && r < x[0]) || (r < rank && r > x[0])) {
+                                    for (int f = 0; f < 8; f++) {
+                                        if ((f > file && f < x[1]) || (f < file && f > x[1])) {
+                                            if (Math.abs(rank - r) == Math.abs(file - f)) {
+                                                if (!old[r][f].equals("")) {
+                                                    try {
+                                                        bs.remove(j);
+                                                    } catch (Exception e) {
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
-                        if (b1 != null) {
-                            if (print) {
-                                System.out.println(file - b1f);
-                                System.out.println(rank - b1r);
-                            }
-                            if (Math.abs(file) - b1f != Math.abs(rank - b1r)) {
-                                b1 = null;
-                                b1f = -1;
-                                b1r = -1;
-                            }
-                        }
-                        if (b2 != null) {
-                            if (print) {
-                                System.out.println(file - b2f);
-                                System.out.println(rank - b2r);
-                            }
-                            if (Math.abs(file - b2f) != Math.abs(rank - b2r)) {
-                                b2 = null;
-                                b2f = -1;
-                                b2r = -1;
-                            }
-                        }
-                        if (b1 != null && b2 != null) {
-                            if (disAmFile != -1) {
-                                if (b1f != disAmFile) {
-                                    b1 = null;
-                                    b1f = -1;
-                                    b1r = -1;
-                                }
-                                if (b2f != disAmFile) {
-                                    b2 = null;
-                                    b2f = -1;
-                                    b2r = -1;
-                                }
-                            }
-                            if (disAmRank != -1) {
-                                if (b1r != disAmRank) {
-                                    b1 = null;
-                                    b1f = -1;
-                                    b1r = -1;
-                                }
-                                if (b2r != disAmRank) {
-                                    b2 = null;
-                                    b2f = -1;
-                                    b2r = -1;
-                                }
-                            }
-                        }
-                        if (b1 != null) {
+                        if (bs.size() == 1) {
+                            old[bs.get(0)[0]][bs.get(0)[1]] = "";
                             old[rank][file] = "WB";
-                            old[b1r][b1f] = "   ";
                         } else {
-                            old[rank][file] = "WB";
-                            try{
-                            old[b2r][b2f] = "   ";
-                            } catch(Exception e){}
+                            if (disAmFile != -1 && disAmRank == -1) {
+                                for (int[] x : bs) {
+                                    if (x[1] == disAmFile) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "WB";
+                                    }
+                                }
+                            }
+
+                            if (disAmFile == -1 && disAmRank != -1) {
+                                for (int[] x : bs) {
+                                    if (x[0] == disAmRank) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "WB";
+                                    }
+                                }
+                            }
+
                         }
                     } else {
-                        String b1 = null;
-                        int b1f = -1;
-                        int b1r = -1;
-                        String b2 = null;
-                        int b2f = -1;
-                        int b2r = -1;
-                        for (int y = 0; y < 8; y++) {
-                            for (int x = 0; x < 8; x++) {
-                                if (old[y][x].equals("BB")) {
-                                    if (b1 == null) {
-                                        b1 = "BB";
-                                        b1f = x;
-                                        b1r = y;
-                                    } else {
-                                        b2 = "BB";
-                                        b2f = x;
-                                        b2r = y;
+                        ArrayList<int[]> bs = new ArrayList<>();
+                        for (int r = 0; r < 8; r++) {
+                            for (int f = 0; f < 8; f++) {
+                                if (old[r][f].equals("BB")) {
+                                    int[] x = new int[2];
+                                    x[0] = r;
+                                    x[1] = f;
+                                    bs.add(x);
+                                }
+                            }
+                        }
+                        for (int j = 0; j < bs.size(); j++) {
+                            int[] x = bs.get(j);
+                            if (Math.abs(rank - x[0]) != Math.abs(file - x[1])) {
+                                bs.remove(x);
+                            }
+                        }
+                        for (int j = 0; j < bs.size(); j++) {
+                            int[] x = bs.get(j);
+                            for (int r = 0; r < 8; r++) {
+                                if ((r > rank && r < x[0]) || (r < rank && r > x[0])) {
+                                    for (int f = 0; f < 8; f++) {
+                                        if ((f > file && f < x[1]) || (f < file && f > x[1])) {
+                                            if (Math.abs(rank - r) == Math.abs(file - f)) {
+                                                if (!old[r][f].equals("")) {
+                                                    try {
+                                                        bs.remove(j);
+                                                    } catch (Exception e) {
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
-                        if (b1 != null) {
-                            if (print) {
-                                System.out.println(file - b1f);
-                                System.out.println(rank - b1r);
-                            }
-                            if (Math.abs(file) - b1f != Math.abs(rank - b1r)) {
-                                b1 = null;
-                                b1f = -1;
-                                b1r = -1;
-                            }
-                        }
-                        if (b2 != null) {
-                            if (print) {
-                                System.out.println(file - b2f);
-                                System.out.println(rank - b2r);
-                            }
-                            if (Math.abs(file - b2f) != Math.abs(rank - b2r)) {
-                                b2 = null;
-                                b2f = -1;
-                                b2r = -1;
-                            }
-                        }
-                        if (b1 != null && b2 != null) {
-                            if (disAmFile != -1) {
-                                if (b1f != disAmFile) {
-                                    b1 = null;
-                                    b1f = -1;
-                                    b1r = -1;
-                                }
-                                if (b2f != disAmFile) {
-                                    b2 = null;
-                                    b2f = -1;
-                                    b2r = -1;
-                                }
-                            }
-                            if (disAmRank != -1) {
-                                if (b1r != disAmRank) {
-                                    b1 = null;
-                                    b1f = -1;
-                                    b1r = -1;
-                                }
-                                if (b2r != disAmRank) {
-                                    b2 = null;
-                                    b2f = -1;
-                                    b2r = -1;
-                                }
-                            }
-                        }
-                        if (b1 != null) {
+                        if (bs.size() == 1) {
+                            old[bs.get(0)[0]][bs.get(0)[1]] = "";
                             old[rank][file] = "BB";
-                            old[b1r][b1f] = "   ";
                         } else {
-                            old[rank][file] = "BB";
-                            try{
-                            old[b2r][b2f] = "   ";
-                            } catch(Exception e){}
+                            if (disAmFile != -1 && disAmRank == -1) {
+                                for (int[] x : bs) {
+                                    if (x[1] == disAmFile) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "BB";
+                                    }
+                                }
+                            }
+
+                            if (disAmFile == -1 && disAmRank != -1) {
+                                for (int[] x : bs) {
+                                    if (x[0] == disAmRank) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "BB";
+                                    }
+                                }
+                            }
+
                         }
+                    }
+                }
+
+
+                if (piece.equals("KNIGHT")) {
+                    if (now.getPlayer() == 1) {
+                        ArrayList<int[]> ks = new ArrayList<>();
+                        for (int r = 0; r < 8; r++) {
+                            for (int f = 0; f < 8; f++) {
+                                if (old[r][f].equals("WN")) {
+                                    int[] x = new int[2];
+                                    x[0] = r;
+                                    x[1] = f;
+                                    ks.add(x);
+                                }
+                            }
+                        }
+                        for (int j = 0; j < ks.size(); j++) {
+                            int[] x = ks.get(j);
+                            if (!((Math.abs(rank - x[0]) == 1 && Math.abs(file - x[1]) == 2) || (Math.abs(rank - x[0]) == 2 && Math.abs(file - x[1]) == 1))) {
+                                ks.remove(x);
+                            }
+                        }
+                        if (ks.size() == 1) {
+                            old[ks.get(0)[0]][ks.get(0)[1]] = "";
+                            old[rank][file] = "WN";
+                        } else {
+                            if (disAmFile != -1 && disAmRank == -1) {
+                                for (int[] x : ks) {
+                                    if (x[1] == disAmFile) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "WN";
+                                    }
+                                }
+                            }
+
+                            if (disAmFile == -1 && disAmRank != -1) {
+                                for (int[] x : ks) {
+                                    if (x[0] == disAmRank) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "WN";
+                                    }
+                                }
+                            }
+
+                        }
+                    } else {
+                        ArrayList<int[]> ks = new ArrayList<>();
+                        for (int r = 0; r < 8; r++) {
+                            for (int f = 0; f < 8; f++) {
+                                if (old[r][f].equals("BN")) {
+                                    int[] x = new int[2];
+                                    x[0] = r;
+                                    x[1] = f;
+                                    ks.add(x);
+                                }
+                            }
+                        }
+                        for (int j = 0; j < ks.size(); j++) {
+                            int[] x = ks.get(j);
+                            if (!((Math.abs(rank - x[0]) == 1 && Math.abs(file - x[1]) == 2) || (Math.abs(rank - x[0]) == 2 && Math.abs(file - x[1]) == 1))) {
+                                ks.remove(x);
+                            }
+                        }
+                        if (ks.size() == 1) {
+                            old[ks.get(0)[0]][ks.get(0)[1]] = "";
+                            old[rank][file] = "BN";
+                        } else {
+                            if (disAmFile != -1 && disAmRank == -1) {
+                                for (int[] x : ks) {
+                                    if (x[1] == disAmFile) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "BN";
+                                    }
+                                }
+                            }
+
+                            if (disAmFile == -1 && disAmRank != -1) {
+                                for (int[] x : ks) {
+                                    if (x[0] == disAmRank) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "BN";
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+                if (piece.equals("ROOK")) {
+                    if (now.getPlayer() == 1) {
+                        ArrayList<int[]> rs = new ArrayList<>();
+                        for (int r = 0; r < 8; r++) {
+                            for (int f = 0; f < 8; f++) {
+                                if (old[r][f].equals("WR")) {
+                                    int[] x = new int[2];
+                                    x[0] = r;
+                                    x[1] = f;
+                                    rs.add(x);
+                                }
+                            }
+                        }
+                        for (int j = 0; j < rs.size(); j++) {
+                            int[] x = rs.get(j);
+                            if (!(rank - x[0] == 0 || file - x[1] == 0)) {
+                                rs.remove(x);
+                            }
+                        }
+                        if (rs.size() == 1) {
+                            old[rs.get(0)[0]][rs.get(0)[1]] = "";
+                            old[rank][file] = "WR";
+                        } else {
+                            if (disAmFile != -1 && disAmRank == -1) {
+                                for (int[] x : rs) {
+                                    if (x[1] == disAmFile) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "WR";
+                                    }
+                                }
+                            }
+                            if (disAmFile == -1 && disAmRank != -1) {
+                                for (int[] x : rs) {
+                                    if (x[0] == disAmRank) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "WR";
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        ArrayList<int[]> rs = new ArrayList<>();
+                        for (int r = 0; r < 8; r++) {
+                            for (int f = 0; f < 8; f++) {
+                                if (old[r][f].equals("BR")) {
+                                    int[] x = new int[2];
+                                    x[0] = r;
+                                    x[1] = f;
+                                    rs.add(x);
+                                }
+                            }
+                        }
+                        for (int j = 0; j < rs.size(); j++) {
+                            int[] x = rs.get(j);
+                            if (!(rank - x[0] == 0 || file - x[1] == 0)) {
+                                rs.remove(x);
+                            }
+                        }
+                        if (rs.size() == 1) {
+                            old[rs.get(0)[0]][rs.get(0)[1]] = "";
+                            old[rank][file] = "BR";
+                        } else {
+                            if (disAmFile != -1 && disAmRank == -1) {
+                                for (int[] x : rs) {
+                                    if (x[1] == disAmFile) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "BR";
+                                    }
+                                }
+                            }
+                            if (disAmFile == -1 && disAmRank != -1) {
+                                for (int[] x : rs) {
+                                    if (x[0] == disAmRank) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "BR";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (piece.equals("QUEEN")) {
+                    if (now.getPlayer() == 1) {
+                        ArrayList<int[]> ks = new ArrayList<>();
+                        for (int r = 0; r < 8; r++) {
+                            for (int f = 0; f < 8; f++) {
+                                if (old[r][f].equals("WQ")) {
+                                    int[] x = new int[2];
+                                    x[0] = r;
+                                    x[1] = f;
+                                    ks.add(x);
+                                }
+                            }
+                        }
+                        if (ks.size() == 1) {
+                            old[ks.get(0)[0]][ks.get(0)[1]] = "";
+                            old[rank][file] = "WQ";
+                        } else {
+                            if (disAmFile != -1 && disAmRank == -1) {
+                                for (int[] x : ks) {
+                                    if (x[1] == disAmFile) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "WQ";
+                                    }
+                                }
+                            }
+
+                            if (disAmFile == -1 && disAmRank != -1) {
+                                for (int[] x : ks) {
+                                    if (x[0] == disAmRank) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "WQ";
+                                    }
+                                }
+                            }
+
+                        }
+                    } else {
+                        ArrayList<int[]> ks = new ArrayList<>();
+                        for (int r = 0; r < 8; r++) {
+                            for (int f = 0; f < 8; f++) {
+                                if (old[r][f].equals("BQ")) {
+                                    int[] x = new int[2];
+                                    x[0] = r;
+                                    x[1] = f;
+                                    ks.add(x);
+                                }
+                            }
+                        }
+                        if (ks.size() == 1) {
+                            old[ks.get(0)[0]][ks.get(0)[1]] = "";
+                            old[rank][file] = "BQ";
+                        } else {
+                            if (disAmFile != -1 && disAmRank == -1) {
+                                for (int[] x : ks) {
+                                    if (x[1] == disAmFile) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "BQ";
+                                    }
+                                }
+                            }
+
+                            if (disAmFile == -1 && disAmRank != -1) {
+                                for (int[] x : ks) {
+                                    if (x[0] == disAmRank) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "BQ";
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+
+                }
+                if (piece.equals("KING")) {
+                    if (now.getPlayer() == 1) {
+                        int f = 0;
+                        int r = 0;
+                        first:
+                        for (int rr = 0; rr < 8; rr++) {
+                            for (int ff = 0; ff < 8; ff++) {
+                                if (old[rr][ff].equals("WK")) {
+                                    f = ff;
+                                    r = rr;
+                                    break first;
+                                }
+                            }
+                        }
+                        old[rank][file] = "WK";
+                        old[r][f] = "   ";
+                    } else {
+                        int f = 0;
+                        int r = 0;
+                        first:
+                        for (int rr = 0; rr < 8; rr++) {
+                            for (int ff = 0; ff < 8; ff++) {
+                                if (old[rr][ff].equals("BK")) {
+                                    f = ff;
+                                    r = rr;
+                                    break first;
+                                }
+                            }
+                        }
+                        old[rank][file] = "BK";
+                        old[r][f] = "   ";
                     }
                 }
             }
@@ -617,11 +947,10 @@ public class Parser {
             last.setTime(now.getTime());
             last.setOpponentInCheck(now.isOpponentInCheck());
             if (print) {
-                int count = 0;
                 System.out.println("   |A  |B  |C  |D  |E  |F  |G  |H");
-                for (String[] y : now.getAll()) {
-                    count++;
-                    System.out.print(count + ": |");
+                for (int p = 7; p >= 0; p--) {
+                    String[] y = now.getAll()[p];
+                    System.out.print((p + 1) + ": |");
                     for (String x : y) {
                         if (x != "") {
                             System.out.print(x + " |");

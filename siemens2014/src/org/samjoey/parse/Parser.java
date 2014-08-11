@@ -55,9 +55,9 @@ public class Parser {
     public static void main(String[] args) {
         print = false;
         print2 = false;
-        print3 = false;
+        print3 = true;
         print4 = false;
-        n = 1;
+        n = 173;
         enpassantCount = 0;
         n--;
         noRookCount = 0;
@@ -103,8 +103,8 @@ public class Parser {
                 while (true) {
                     int get = (int) (Math.random() * games.size());
                     Game game = games.get(get);
-                    //if (game.getWinType() != null && (game.getWinType().equals("Checkmated") || game.getWinType().equals("Draw")) ) {
-                    if (game.getWinType() != null && (game.getWinType().equals("Draw"))) {
+                    if (game.getWinType() != null && (game.getWinType().equals("Checkmated") || game.getWinType().equals("Draw"))) {
+                        //if (game.getWinType() != null && (game.getWinType().equals("Draw"))) {
                         Board board = game.getAllBoards().get(game.getAllBoards().size() - 1);
                         System.out.println("   |A  |B  |C  |D  |E  |F  |G  |H");
                         for (int p = 7; p >= 0; p--) {
@@ -121,8 +121,8 @@ public class Parser {
                             System.out.println("-------------------------------------");
                         }
 
-                        System.out.println(get + 1);
-                        game.setId(get);
+                        System.out.println(game.getId());
+                        
                         Scanner s = new Scanner(System.in);
                         while (!s.hasNext()) {
                         }
@@ -140,11 +140,11 @@ public class Parser {
                 }
                 System.out.println("GOOD: " + good.size());
                 for (Game g : good) {
-                    System.out.println(g.getId());
+                    System.out.println(g.getId() + 1);
                 }
                 System.out.println("BAD: " + bad.size());
                 for (Game g : bad) {
-                    System.out.println(g.getId());
+                    System.out.println(g.getId() + 1);
                 }
             }
             if (print4) {
@@ -204,7 +204,7 @@ public class Parser {
     private static LinkedList<Game> parseGames(File file) throws IOException {
         BufferedReader reader = Files.newBufferedReader(file.toPath(), Charset.forName("US-ASCII"));
         LinkedList<String> lines = new LinkedList<>();
-        String line = null;
+        String line;
         //Read the input into a linked list.
         while ((line = reader.readLine()) != null) {
             lines.add(line);
@@ -251,12 +251,16 @@ public class Parser {
      * @return
      */
     private static LinkedList<Game> parseGameArrays(LinkedList<String[]> separatedGames) {
+        checkmates = 0;
+        drawn = 0;
         System.out.println(separatedGames.size());
         LinkedList<Game> games = new LinkedList<>();
         int count = 0;
+        int count2 = 0;
         for (String[] strings : separatedGames) {
+            count2++;
             Game game = new Game();
-            count++;
+            game.setId(count2);
             for (String s : strings) {
 
                 if (s != null) {
@@ -286,11 +290,9 @@ public class Parser {
                     if (s.contains("checkmated")) {
                         game.setWinType("Checkmated");
                         Parser.checkmates++;
-                    }
-                    if (s.contains("resigns")) {
+                    } else if (s.contains("resigns")) {
                         game.setWinType("Resignation");
-                    }
-                    if (s.contains("drawn")) {
+                    } else if (s.contains("drawn")) {
                         game.setWinType("Draw");
                         Parser.drawn++;
                     }
@@ -306,14 +308,14 @@ public class Parser {
                 }
             }
             //Add the game to the list of games
-            games.add(game);
+            if (game.getWinType() != null && (game.getWinType().equals("Draw") || game.getWinType().equals("Checkmated"))) {
+                count++;
+                games.add(game);
+            }
             //To limit the number of games
-            if (count % 100 == 0) {
-                System.out.println(count);
-            }
-            if (count == 15000) {
-                break;
-            }
+//            if (count == 15000) {
+//                break;
+//            }
         }
         return games;
     }
@@ -384,7 +386,7 @@ public class Parser {
             //Get the move
             String str = moves.get(i);
             //Copy it in case of edit
-            String orig = new String(str);
+            String orig = str;
             Board now = new Board();
             //Set the player
             if (last.getPlayer() == 0 || last.getPlayer() == 2) {
@@ -876,17 +878,17 @@ public class Parser {
                                             old[rank][file] = "WR";
                                         }
                                     }
-                                } else {
-                                    if (file > b[0]) {
+                                } else if (a[1] == b[1]) {
+                                    if (rank > b[0]) {
                                         old[b[0]][b[1]] = "";
                                         old[rank][file] = "WR";
-                                    } else if (file < a[0]) {
+                                    } else if (rank < a[0]) {
                                         old[a[0]][a[1]] = "";
                                         old[rank][file] = "WR";
                                     } else {
                                         boolean x = true;
-                                        for (int f = b[0] - 1; f > file; f--) {
-                                            if (!old[f][b[1]].equals("")) {
+                                        for (int r = b[0] - 1; r > rank; r--) {
+                                            if (!old[r][b[1]].equals("")) {
                                                 x = false;
                                                 break;
                                             }
@@ -899,6 +901,59 @@ public class Parser {
                                             old[rank][file] = "WR";
                                         }
 
+                                    }
+                                } else {
+                                    if (a[0] == rank) {
+                                        int f = a[1];
+                                        boolean x = true;
+                                        while (true) {
+                                            if (f < file) {
+                                                f++;
+                                            }
+                                            if (f > file) {
+                                                f--;
+                                            }
+                                            if (f == file) {
+                                                break;
+                                            }
+                                            if (!old[a[0]][f].equals("")) {
+                                                x = false;
+                                                break;
+                                            }
+                                        }
+                                        if (!x) {
+                                            old[b[0]][b[1]] = "";
+                                            old[rank][file] = "WR";
+                                        } else {
+                                            old[a[0]][a[1]] = "";
+                                            old[rank][file] = "WR";
+                                        }
+                                    }
+                                    if (b[0] == rank) {
+                                        int f = b[1];
+                                        boolean x = true;
+                                        while (true) {
+                                            if (f < file) {
+                                                f++;
+                                            }
+                                            if (f > file) {
+                                                f--;
+                                            }
+                                            if (f == file) {
+                                                break;
+                                            }
+                                            if (!old[b[0]][f].equals("")) {
+                                                x = false;
+                                                break;
+                                            }
+                                        }
+                                        if (x) {
+                                            old[b[0]][b[1]] = "";
+                                            old[rank][file] = "WR";
+                                        } else {
+                                            old[a[0]][a[1]] = "";
+                                            old[rank][file] = "WR";
+                                        }
                                     }
                                 }
                             }
@@ -978,17 +1033,70 @@ public class Parser {
                                             old[rank][file] = "BR";
                                         }
                                     }
-                                } else {
-                                    if (file > b[0]) {
+                                } else if (a[1] == b[1]) {
+                                    if (rank > b[0]) {
                                         old[b[0]][b[1]] = "";
                                         old[rank][file] = "BR";
-                                    } else if (file < a[0]) {
+                                    } else if (rank < a[0]) {
                                         old[a[0]][a[1]] = "";
                                         old[rank][file] = "BR";
                                     } else {
                                         boolean x = true;
-                                        for (int f = b[0] - 1; f > file; f--) {
-                                            if (!old[f][b[1]].equals("")) {
+                                        for (int r = b[0] - 1; r > rank; r--) {
+                                            if (!old[r][b[1]].equals("")) {
+                                                x = false;
+                                                break;
+                                            }
+                                        }
+                                        if (x) {
+                                            old[b[0]][b[1]] = "";
+                                            old[rank][file] = "BR";
+                                        } else {
+                                            old[a[0]][a[1]] = "";
+                                            old[rank][file] = "BR";
+                                        }
+                                    }
+                                } else {
+                                    if (a[0] == rank) {
+                                        int f = a[1];
+                                        boolean x = true;
+                                        while (true) {
+                                            if (f < file) {
+                                                f++;
+                                            }
+                                            if (f > file) {
+                                                f--;
+                                            }
+                                            if (f == file) {
+                                                break;
+                                            }
+                                            if (!old[a[0]][f].equals("")) {
+                                                x = false;
+                                                break;
+                                            }
+                                        }
+                                        if (!x) {
+                                            old[b[0]][b[1]] = "";
+                                            old[rank][file] = "BR";
+                                        } else {
+                                            old[a[0]][a[1]] = "";
+                                            old[rank][file] = "BR";
+                                        }
+                                    }
+                                    if (b[0] == rank) {
+                                        int f = b[1];
+                                        boolean x = true;
+                                        while (true) {
+                                            if (f < file) {
+                                                f++;
+                                            }
+                                            if (f > file) {
+                                                f--;
+                                            }
+                                            if (f == file) {
+                                                break;
+                                            }
+                                            if (!old[b[0]][f].equals("")) {
                                                 x = false;
                                                 break;
                                             }

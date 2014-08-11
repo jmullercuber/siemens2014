@@ -64,8 +64,7 @@ function GameLooper(initialGame, calcList) {
 				var currentBoard = this.currentGame.next();
 				
 				// use every tool (Calculator) we have
-				//print(this.calcs.toString() + " " + (this.calcs instanceof Array));
-				for (var i in this.calcs) {
+				for (var i=0; i<this.calcs.length; i++) {
 					var calc = this.calcs[i];
 					// do the calculation and push it to the curent Game's list
 					currentGame.addVariable(calc.name, calc.evaluate(currentBoard));
@@ -78,7 +77,31 @@ function GameLooper(initialGame, calcList) {
 		}
 		finally {
 			print("Done calculating with this Game");
-			print(currentGame.getVarData().get('TotalXCoorUnweigthedCenter'));
 		}
+	}
+	
+	// returns and prints the current variable data about the current Game
+	this.read = function() {
+		// Check if we can actually read a Game
+		if (this.currentGame == null) {
+			throw new /*Reference*/Error("GameLooper - NoGameOpenedToRead");
+		}
+		
+		// Header
+		print("Reading Game: " + currentGame.toString());
+		
+		// for every var/calculator we track ...
+		for (var i=0; i<this.calcs.length; i++) {
+			var calcName = this.calcs[i].name;
+			
+			// ... print out what the data is
+			print("\tCalculator:" + calcName);
+			// if it is there
+			// prints null if entry is not found
+			print("\t" + currentGame.getVarData().get(calcName));
+		}
+		
+		// Return our Game's HashMap
+		return currentGame.getVarData();
 	}
 }

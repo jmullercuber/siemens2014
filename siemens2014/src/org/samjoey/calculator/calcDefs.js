@@ -54,7 +54,6 @@ var CenterOfMass = function(x_or_y, pieceWeigth, filterFunc, calcName) {
 			}
 			
 			center_of_mass = sum_mass_pos[x_or_y]/total_mass;
-			print(center_of_mass)
 			return center_of_mass;
 		}
 	);

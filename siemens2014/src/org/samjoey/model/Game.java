@@ -32,7 +32,7 @@ public class Game {
     private double blackTime; //How much time black took
     private int plyCount; //The number of half-moves taken
     private int timeAllowedPerPlayer; //How much time was allowed per player
-    private HashMap<String, ArrayList<Integer>> vars; //The variables calculated
+    private HashMap<String, ArrayList<Double>> vars; //The variables calculated
     private Iterator iterator; //The iterator over the boards
 
     /**
@@ -60,21 +60,21 @@ public class Game {
     }
 
     //Return all variable data
-    public HashMap<String, ArrayList<Integer>> getVarData() {
+    public HashMap<String, ArrayList<Double>> getVarData() {
         return vars;
     }
 
     //Get a specific variable
-    public ArrayList<Integer> getVar(String var) {
+    public ArrayList<Double> getVar(String var) {
         return vars.get(var);
     }
 
     //Add data for a variable. Also handles adding the variable if it is not already mapped
-    public void addVariable(String name, Integer value) {
+    public void addVariable(String name, Double value) {
         if (vars.containsKey(name)) {
             vars.get(name).add(value);
         } else {
-            vars.put(name, new ArrayList<Integer>());
+            vars.put(name, new ArrayList<Double>());
             vars.get(name).add(value);
         }
     }

@@ -33,6 +33,9 @@ for (var i=0; i<gameList.size(); i++) {
 	// do your magic!
 	gameLooper.calculate();
 	
+	// show the results
+	gameLooper.read();
+	
 	// prepare to move on to the next
 	gameLooper.close();
 	

@@ -15,6 +15,8 @@
  */
 package org.samjoey.model;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Sam
@@ -80,5 +82,33 @@ public class Board {
     //Set if this is a checking move
     public void setOpponentInCheck(boolean opponentInCheck) {
         this.opponentInCheck = opponentInCheck;
+    }
+    
+    public ArrayList<ArrayList> exportPiecesToList() {
+        // Define what we'll return
+        ArrayList<ArrayList> pieceList = new ArrayList<ArrayList> ();
+        
+        // Find the piece at ...
+        // ... every row ...
+        for (int i=0; i<pieces.length; i++) {
+            String[] row = pieces[i];
+            
+            // ... at every spot in that row ...
+            for (int j=0; j<row.length; j++) {
+                String p = row[j];
+                
+                // ... but only if it's not empty!
+                if (!p.equals("")) {
+                    // Record certain properties
+                    ArrayList pieceEntry = new ArrayList();
+                        pieceEntry.add(p);   // the name
+                        pieceEntry.add(new Integer(i));   // the x-coordinate
+                        pieceEntry.add(new Integer(j));   // the y-coordinate
+                    pieceList.add(pieceEntry);
+                }
+            }
+        }
+        
+        return pieceList;
     }
 }

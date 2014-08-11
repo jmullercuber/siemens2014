@@ -34,6 +34,7 @@ public class Game {
     private int timeAllowedPerPlayer; //How much time was allowed per player
     private HashMap<String, ArrayList<Integer>> vars; //The variables calculated
     private Iterator iterator; //The iterator over the boards
+    private int id;
 
     /**
      * Default constructor, initializes list and map
@@ -147,5 +148,13 @@ public class Game {
     //Set the ply count
     public void setPlyCount(int plyCount) {
         this.plyCount = plyCount;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

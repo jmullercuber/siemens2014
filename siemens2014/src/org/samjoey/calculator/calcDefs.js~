@@ -1,5 +1,0 @@
-/*
- * Here place definitions for various pre-made Calculators
- * These will be imported to the driver, where these names
- * will have local meaning there. To not culter up 
- */

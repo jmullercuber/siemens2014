@@ -52,24 +52,24 @@ function GameLooper(initialGame, calcList) {
 	// and edits it's internal HashMap
 	// by appending data collected for each Calculator
 	this.calculate = function() {
-               // for each board that we can understand
-               try {
-                   while (true) {   // ignorant of how many boards there actually are
-                       var currentBoard = currentGame.next();
-                       
-                       // use every tool (Calculator) we have
-                       for (var calc in this.calcs) {
-                           // do the calculation and push it to the curent Game's list
-                           currentGame.addVariable(calc.name, calc.evaluate(currentBoard));
-                       }
-                   }
-               }
-               catch(e if e.message == "NoSuchElementException") {  // is e.message correct?
-                   // Do nothing, this is expected
-                   // We are done with this game
-               }
-               finally {
-                   print("Done calculating");
-               }
+		// for each board that we can understand
+		try {
+			while (true) {   // ignorant of how many boards there actually are
+				var currentBoard = currentGame.next();
+				
+				// use every tool (Calculator) we have
+				for (var calc in this.calcs) {
+					// do the calculation and push it to the curent Game's list
+					currentGame.addVariable(calc.name, calc.evaluate(currentBoard));
+				}
+			}
+		}
+		catch(e if e.message == "NoSuchElementException") {  // is e.message correct?
+			// Do nothing, this is expected
+			// We are done with this game
+		}
+		finally {
+			print("Done calculating with this board");
+		}
 	}
 }

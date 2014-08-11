@@ -3,6 +3,7 @@
 }*/
 
 
-function Calculator(func) {
+function Calculator(nm, func) {
+	this.name = nm;
 	this.evaluate = func;
 }

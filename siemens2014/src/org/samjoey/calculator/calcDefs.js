@@ -5,22 +5,26 @@
  * Purpuse: To not culter up that precious driver file 
  */
 
-load ('/org/samjoey/calculator/Calculator.js');
+load ('org/samjoey/calculator/Calculator.js');
 
 
 // CenterOfMass is a function factory
-var CenterOfMass = function(x_or_y, pieceWeigth, filterFunc) {
+var CenterOfMass = function(x_or_y, pieceWeigth, filterFunc, calcName) {
 	// arguments
 	//  In what direction shouid we calculate? 'x', or file, by default
 	x_or_y = x_or_y || 'x'
 	
 	// How much is each piece worth? Weight each piece's value
-	pieceWeigth = pieceWeigth || (pieceID => 1);
+	pieceWeigth = pieceWeigth || (function(pieceID) {return 1;});
 	
 	// What types of pieces do we want? Filter the list
-	filterFunc = filterFunct || (pieceEntry => true);
+	filterFunc = filterFunc || (function(pieceEntry) {return true;});
+	
+	// And give it a name!
+	calcName = calcName || "CenterOfMass";
 	
 	return new Calculator(
+		calcName,
 		function(board) {
 			// arguments
 			// Get a list of pieces...
@@ -41,8 +45,8 @@ var CenterOfMass = function(x_or_y, pieceWeigth, filterFunc) {
 			var total_mass = 0;
 			
 			// Figure Center of Mass by summing weights for every piece
-			for (var i=0; i<pieceList.size(); i++) {
-				var pieceData = pieceList.get(i);
+			for (var i=0; i<pieceList.length; i++) {
+				var pieceData = pieceList[i];
 				
 				sum_mass_pos['x'] += pieceWeigth(pieceData.get(0))*pieceData.get(1);
 				sum_mass_pos['y'] += pieceWeigth(pieceData.get(0))*pieceData.get(2);
@@ -50,13 +54,14 @@ var CenterOfMass = function(x_or_y, pieceWeigth, filterFunc) {
 			}
 			
 			center_of_mass = sum_mass_pos[x_or_y]/total_mass;
+			print(center_of_mass)
 			return center_of_mass;
 		}
 	);
  };
 
 
-var TotalisticXUnweightedCenter = CenterOfMass('x');
+var TotalisticXUnweightedCenter = CenterOfMass('x',undefined,undefined,'TotalXCoorUnweigthedCenter');
 
 
 /*var PlayerWeightedCenter = new Calculator(

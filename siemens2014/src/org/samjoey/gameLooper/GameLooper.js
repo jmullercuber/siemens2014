@@ -1,3 +1,5 @@
+load ('org/samjoey/calculator/Calculator.js');
+
 function GameLooper(initialGame, calcList) {
 	/*
 	 To do:
@@ -27,7 +29,7 @@ function GameLooper(initialGame, calcList) {
 	
 	// Open a Game so that we can start dealing with it. Throw an {ErrorNameHere} error if another Game is already open.
 	this.open = function(game) {
-		if (currentGame != null) {
+		if (this.currentGame != null) {
 			throw new Error("GameLooper - AlreadyInUse");
 		}
 		this.currentGame = game;
@@ -35,15 +37,19 @@ function GameLooper(initialGame, calcList) {
 
 	// Close the currentGame so another Game can be used
 	this.close = function() {
-		if (currentGame == null) {
+		if (this.currentGame == null) {
 			//already closed/never opened
 			throw new Error("GameLooper - AlredyClosed");
 		}
-		currentGame = null;
+		this.currentGame = null;
 	}
 	
 	// addCalculator() makes each GameLooper different. Calculates different stuff
 	this.addCalculator = function(oneCalc) {
+		if (!(oneCalc instanceof Calculator)) {
+			// not a real Calculator
+			throw new TypeError("GameLooper - NotABonafideCalc");
+		}
 		this.calcs.push(oneCalc);
 	}
 	
@@ -55,21 +61,24 @@ function GameLooper(initialGame, calcList) {
 		// for each board that we can understand
 		try {
 			while (true) {   // ignorant of how many boards there actually are
-				var currentBoard = currentGame.next();
+				var currentBoard = this.currentGame.next();
 				
 				// use every tool (Calculator) we have
-				for (var calc in this.calcs) {
+				//print(this.calcs.toString() + " " + (this.calcs instanceof Array));
+				for (var i in this.calcs) {
+					var calc = this.calcs[i];
 					// do the calculation and push it to the curent Game's list
 					currentGame.addVariable(calc.name, calc.evaluate(currentBoard));
 				}
 			}
 		}
-		catch(e if e.message == "NoSuchElementException") {  // is e.message correct?
+		catch(e if e.javaException instanceof java.util.NoSuchElementException) {  // is e.message correct?
 			// Do nothing, this is expected
 			// We are done with this game
 		}
 		finally {
-			print("Done calculating with this board");
+			print("Done calculating with this Game");
+			print(currentGame.getVarData().get('TotalXCoorUnweigthedCenter'));
 		}
 	}
 }

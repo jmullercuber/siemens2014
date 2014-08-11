@@ -5,7 +5,7 @@ print("Hello, World!");
 //importClass(Packages.model.Board);
 importClass(Packages.org.samjoey.model.Parser);
 importClass(Packages.org.samjoey.model.Game);
-// load("/org/samjoey/gameLooper/GameLooper.js")  // import straight js
+ load("/org/samjoey/gameLooper/GameLooper.js")  // import straight js
 
 
 // in JS, use arguments vs args
@@ -16,10 +16,8 @@ var fileLoc = arguments[0];
 var gameList = Parser.parseGames(fileLoc);
 // Get access to a GameLooper
 var gameLooper = new GameLooper();
-/*gameLooper.addCalculator(<calcNameHere>);
-gameLooper.addCalculator(<calcNameHere>);
-gameLooper.addCalculator(<calcNameHere>);
-*/
+gameLooper.addCalculator(TotalisticXUnweightedCenter);
+// gameLooper.addCalculator(<calcNameHere>);
 
 
 // For every game...

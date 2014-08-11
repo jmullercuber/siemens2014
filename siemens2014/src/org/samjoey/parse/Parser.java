@@ -39,6 +39,15 @@ public class Parser {
     static boolean print2;
     static boolean print3;
     static boolean print4;
+    static int enpassantCount;
+    private static int noRookCount;
+    private static int n;
+    private static int checkmates;
+    private static int drawn;
+    private static int white;
+    private static int black;
+    private static int half;
+    static boolean test;
 
     /**
      * Method for testing purposes. This will have no use in the actual program.
@@ -47,14 +56,18 @@ public class Parser {
         print = false;
         print2 = false;
         print3 = false;
-        print4 = true;
-        int n = 6579;
+        print4 = false;
+        n = 1;
+        enpassantCount = 0;
         n--;
+        noRookCount = 0;
         try {
             LinkedList<Game> games;
             //JOEY: you will need to change this in order to test.
-            games = parseGames("File:/Users/Sam/Documents/ficsgamesdb_201401_lightning2000_movetimes_1116420.pgn");
-            System.out.println("DONE");
+            String fileLocation = "File:/Users/Sam/Documents/ficsgamesdb_201401_chess2000_movetimes_1118415.pgn";
+            System.out.println(System.nanoTime());
+            games = parseGames(fileLocation);
+            System.out.println(System.nanoTime());
             //Print out a random game
             if (print2) {
                 int get = (int) (Math.random() * games.size());
@@ -68,7 +81,7 @@ public class Parser {
                         String[] y = board.getAll()[p];
                         System.out.print((p + 1) + ": |");
                         for (String x : y) {
-                            if (x != "") {
+                            if (!"".equals(x)) {
                                 System.out.print(x + " |");
                             } else {
                                 System.out.print("   |");
@@ -84,18 +97,21 @@ public class Parser {
                 System.out.println(game.getPlyCount());
             }
             if (print3) {
-                System.out.println("3");
+                System.out.println(enpassantCount);
+                ArrayList<Game> good = new ArrayList<>();
+                ArrayList<Game> bad = new ArrayList<>();
                 while (true) {
                     int get = (int) (Math.random() * games.size());
                     Game game = games.get(get);
-                    if (game.getWinType() != null && game.getWinType().equals("Checkmated")) {
+                    //if (game.getWinType() != null && (game.getWinType().equals("Checkmated") || game.getWinType().equals("Draw")) ) {
+                    if (game.getWinType() != null && (game.getWinType().equals("Draw"))) {
                         Board board = game.getAllBoards().get(game.getAllBoards().size() - 1);
                         System.out.println("   |A  |B  |C  |D  |E  |F  |G  |H");
                         for (int p = 7; p >= 0; p--) {
                             String[] y = board.getAll()[p];
                             System.out.print((p + 1) + ": |");
                             for (String x : y) {
-                                if (x != "") {
+                                if (!"".equals(x)) {
                                     System.out.print(x + " |");
                                 } else {
                                     System.out.print("   |");
@@ -106,15 +122,32 @@ public class Parser {
                         }
 
                         System.out.println(get + 1);
+                        game.setId(get);
                         Scanner s = new Scanner(System.in);
                         while (!s.hasNext()) {
                         }
+                        String in = s.next();
+                        if (in.contains("G")) {
+                            good.add(game);
+                        }
+                        if (in.contains("B")) {
+                            bad.add(game);
+                        }
+                        if (in.contains("-")) {
+                            break;
+                        }
                     }
                 }
-
+                System.out.println("GOOD: " + good.size());
+                for (Game g : good) {
+                    System.out.println(g.getId());
+                }
+                System.out.println("BAD: " + bad.size());
+                for (Game g : bad) {
+                    System.out.println(g.getId());
+                }
             }
             if (print4) {
-                System.out.println("3");
                 Game game = games.get(n);
                 int count = 0;
                 for (Board board : game.getAllBoards()) {
@@ -125,7 +158,7 @@ public class Parser {
                         String[] y = board.getAll()[p];
                         System.out.print((p + 1) + ": |");
                         for (String x : y) {
-                            if (x != "") {
+                            if (!"".equals(x)) {
                                 System.out.print(x + " |");
                             } else {
                                 System.out.print("   |");
@@ -218,6 +251,7 @@ public class Parser {
      * @return
      */
     private static LinkedList<Game> parseGameArrays(LinkedList<String[]> separatedGames) {
+        System.out.println(separatedGames.size());
         LinkedList<Game> games = new LinkedList<>();
         int count = 0;
         for (String[] strings : separatedGames) {
@@ -238,22 +272,27 @@ public class Parser {
                     if (s.contains("Result")) {
                         if (s.contains("1-0")) {
                             game.setWinner(1);
+                            white++;
                         }
                         if (s.contains("0-1")) {
                             game.setWinner(2);
+                            black++;
                         }
                         if (s.contains("1/2-1/2")) {
                             game.setWinner(0);
+                            half++;
                         }
                     }
                     if (s.contains("checkmated")) {
                         game.setWinType("Checkmated");
+                        Parser.checkmates++;
                     }
                     if (s.contains("resigns")) {
                         game.setWinType("Resignation");
                     }
                     if (s.contains("drawn")) {
                         game.setWinType("Draw");
+                        Parser.drawn++;
                     }
                     //Parse the actual moves
                     if (s.startsWith("1")) {
@@ -269,9 +308,12 @@ public class Parser {
             //Add the game to the list of games
             games.add(game);
             //To limit the number of games
-//            if (count == 2) {
-//                //break;
-//            }
+            if (count % 100 == 0) {
+                System.out.println(count);
+            }
+            if (count == 15000) {
+                break;
+            }
         }
         return games;
     }
@@ -393,15 +435,15 @@ public class Parser {
                 }
             } else if (special.contains("2")) { //Queen castle
                 if (now.getPlayer() == 1) {
-                    old[0][2] = old[0][4];
+                    old[0][2] = "WK";
                     old[0][4] = "";
-                    old[0][3] = old[0][7];
+                    old[0][3] = "WR";
                     old[0][0] = "";
                 }
                 if (now.getPlayer() == 2) {
-                    old[7][2] = old[7][4];
+                    old[7][2] = "BK";
                     old[7][4] = "";
-                    old[7][3] = old[7][7];
+                    old[7][3] = "BR";
                     old[7][0] = "";
                 }
             } else {
@@ -451,7 +493,14 @@ public class Parser {
                 if (piece.equals("PAWN")) { //No dealing with en passant yet
                     if (special.contains("7")) { //Pawn has to move diagonally
                         //DisAm Issue
-
+                        if (old[rank][file].equals("")) {
+                            enpassantCount++;
+                            if (now.getPlayer() == 1) {
+                                old[rank - 1][file] = "";
+                            } else {
+                                old[rank + 1][file] = "";
+                            }
+                        }
                         if (now.getPlayer() == 1) {
                             String p1 = "";
                             String p2 = "";
@@ -750,29 +799,31 @@ public class Parser {
                         }
                     }
                 }
-                if (piece.equals("ROOK")) {
+                if (piece.equals("ROOK")) { //Moves rooks
                     if (now.getPlayer() == 1) {
-                        ArrayList<int[]> rs = new ArrayList<>();
-                        for (int r = 0; r < 8; r++) {
-                            for (int f = 0; f < 8; f++) {
-                                if (old[r][f].equals("WR")) {
+                        ArrayList<int[]> rs = new ArrayList<>(); //For storing the coordinates of all rooks on the board
+                        for (int r = 0; r < 8; r++) { //Parse through every rank
+                            for (int f = 0; f < 8; f++) { //Parse through every file
+                                if (old[r][f].equals("WR")) { //If the piece there is a white rook, store its coordinates
                                     int[] x = new int[2];
                                     x[0] = r;
                                     x[1] = f;
                                     rs.add(x);
                                 }
                             }
-                        }
-                        for (int j = 0; j < rs.size(); j++) {
-                            int[] x = rs.get(j);
-                            if (!(rank - x[0] == 0 || file - x[1] == 0)) {
-                                rs.remove(x);
+                        } //End parsing through entire board
+                        for (int j = 0; j < rs.size(); j++) { //Parse through each potential rook to make sure it would move straight
+                            int[] x = rs.get(j); //Get the rook
+                            if (!(rank - x[0] == 0 || file - x[1] == 0)) { // Ranks should be equal or files should be equal
+                                rs.remove(x); //If not, remove it
                             }
                         }
-                        if (rs.size() == 1) {
+                        if (rs.isEmpty()) {
+                            noRookCount++;
+                        } else if (rs.size() == 1) { //If there is only one, move it
                             old[rs.get(0)[0]][rs.get(0)[1]] = "";
                             old[rank][file] = "WR";
-                        } else {
+                        } else { //There can only be one
                             if (disAmFile != -1 && disAmRank == -1) {
                                 for (int[] x : rs) {
                                     if (x[1] == disAmFile) {
@@ -786,6 +837,68 @@ public class Parser {
                                     if (x[0] == disAmRank) {
                                         old[x[0]][x[1]] = "";
                                         old[rank][file] = "WR";
+                                    }
+                                }
+                            }
+
+                            //
+                            if (disAmFile != -1 && disAmRank != -1) {
+                                for (int[] x : rs) {
+                                    if (x[0] == disAmRank && x[1] == disAmFile) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "WR";
+                                    }
+                                }
+                            }
+                            if (disAmFile == -1 && disAmRank == -1) { //If no disAm
+                                int[] a = rs.get(0); //Get #1
+                                int[] b = rs.get(1); //Get #2
+                                if (a[0] == b[0]) { //If ranks are equal
+                                    if (file > b[1]) {
+                                        old[b[0]][b[1]] = "";
+                                        old[rank][file] = "WR";
+                                    } else if (file < a[1]) {
+                                        old[a[0]][a[1]] = "";
+                                        old[rank][file] = "WR";
+                                    } else {
+                                        boolean x = true;
+                                        for (int f = b[1] - 1; f > file; f--) {
+                                            if (!old[b[0]][f].equals("")) {
+                                                x = false;
+                                                break;
+                                            }
+                                        }
+                                        if (x) {
+                                            old[b[0]][b[1]] = "";
+                                            old[rank][file] = "WR";
+                                        } else {
+                                            old[a[0]][a[1]] = "";
+                                            old[rank][file] = "WR";
+                                        }
+                                    }
+                                } else {
+                                    if (file > b[0]) {
+                                        old[b[0]][b[1]] = "";
+                                        old[rank][file] = "WR";
+                                    } else if (file < a[0]) {
+                                        old[a[0]][a[1]] = "";
+                                        old[rank][file] = "WR";
+                                    } else {
+                                        boolean x = true;
+                                        for (int f = b[0] - 1; f > file; f--) {
+                                            if (!old[f][b[1]].equals("")) {
+                                                x = false;
+                                                break;
+                                            }
+                                        }
+                                        if (x) {
+                                            old[b[0]][b[1]] = "";
+                                            old[rank][file] = "WR";
+                                        } else {
+                                            old[a[0]][a[1]] = "";
+                                            old[rank][file] = "WR";
+                                        }
+
                                     }
                                 }
                             }
@@ -808,7 +921,9 @@ public class Parser {
                                 rs.remove(x);
                             }
                         }
-                        if (rs.size() == 1) {
+                        if (rs.isEmpty()) {
+                            noRookCount++;
+                        } else if (rs.size() == 1) {
                             old[rs.get(0)[0]][rs.get(0)[1]] = "";
                             old[rank][file] = "BR";
                         } else {
@@ -828,6 +943,66 @@ public class Parser {
                                     }
                                 }
                             }
+                            //
+                            if (disAmFile != -1 && disAmRank != -1) {
+                                for (int[] x : rs) {
+                                    if (x[0] == disAmRank && x[1] == disAmFile) {
+                                        old[x[0]][x[1]] = "";
+                                        old[rank][file] = "BR";
+                                    }
+                                }
+                            }
+                            if (disAmFile == -1 && disAmRank == -1) {
+                                int[] a = rs.get(0);
+                                int[] b = rs.get(1);
+                                if (a[0] == b[0]) {
+                                    if (file > b[1]) {
+                                        old[b[0]][b[1]] = "";
+                                        old[rank][file] = "BR";
+                                    } else if (file < a[1]) {
+                                        old[a[0]][a[1]] = "";
+                                        old[rank][file] = "BR";
+                                    } else {
+                                        boolean x = true;
+                                        for (int f = b[1] - 1; f > file; f--) {
+                                            if (!old[b[0]][f].equals("")) {
+                                                x = false;
+                                                break;
+                                            }
+                                        }
+                                        if (x) {
+                                            old[b[0]][b[1]] = "";
+                                            old[rank][file] = "BR";
+                                        } else {
+                                            old[a[0]][a[1]] = "";
+                                            old[rank][file] = "BR";
+                                        }
+                                    }
+                                } else {
+                                    if (file > b[0]) {
+                                        old[b[0]][b[1]] = "";
+                                        old[rank][file] = "BR";
+                                    } else if (file < a[0]) {
+                                        old[a[0]][a[1]] = "";
+                                        old[rank][file] = "BR";
+                                    } else {
+                                        boolean x = true;
+                                        for (int f = b[0] - 1; f > file; f--) {
+                                            if (!old[f][b[1]].equals("")) {
+                                                x = false;
+                                                break;
+                                            }
+                                        }
+                                        if (x) {
+                                            old[b[0]][b[1]] = "";
+                                            old[rank][file] = "BR";
+                                        } else {
+                                            old[a[0]][a[1]] = "";
+                                            old[rank][file] = "BR";
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -844,7 +1019,8 @@ public class Parser {
                                 }
                             }
                         }
-                        if (ks.size() == 1) {
+                        if (ks.isEmpty()) {
+                        } else if (ks.size() == 1) {
                             old[ks.get(0)[0]][ks.get(0)[1]] = "";
                             old[rank][file] = "WQ";
                         } else {
@@ -866,6 +1042,38 @@ public class Parser {
                                 }
                             }
 
+                            if (disAmFile == -1 && disAmRank == -1) {
+                                int[] a = ks.get(0);
+                                int[] b = ks.get(1);
+                                int f = a[1];
+                                int r = a[0];
+                                while (true) {
+                                    if (f != file) {
+                                        if (f < file) {
+                                            f++;
+                                        } else {
+                                            f--;
+                                        }
+                                    }
+                                    if (r != rank) {
+                                        if (r < rank) {
+                                            r++;
+                                        } else {
+                                            r--;
+                                        }
+                                    }
+                                    if (r == rank && f == file) {
+                                        old[a[0]][a[1]] = "";
+                                        old[rank][file] = "WQ";
+                                        break;
+                                    }
+                                    if (!old[r][f].equals("")) {
+                                        old[b[0]][b[1]] = "";
+                                        old[rank][file] = "WQ";
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     } else {
                         ArrayList<int[]> ks = new ArrayList<>();
@@ -879,7 +1087,8 @@ public class Parser {
                                 }
                             }
                         }
-                        if (ks.size() == 1) {
+                        if (ks.isEmpty()) {
+                        } else if (ks.size() == 1) {
                             old[ks.get(0)[0]][ks.get(0)[1]] = "";
                             old[rank][file] = "BQ";
                         } else {
@@ -900,7 +1109,38 @@ public class Parser {
                                     }
                                 }
                             }
-
+                            if (disAmFile == -1 && disAmRank == -1) {
+                                int[] a = ks.get(0);
+                                int[] b = ks.get(1);
+                                int f = a[1];
+                                int r = a[0];
+                                while (true) {
+                                    if (f != file) {
+                                        if (f < file) {
+                                            f++;
+                                        } else {
+                                            f--;
+                                        }
+                                    }
+                                    if (r != rank) {
+                                        if (r < rank) {
+                                            r++;
+                                        } else {
+                                            r--;
+                                        }
+                                    }
+                                    if (r == rank && f == file) {
+                                        old[a[0]][a[1]] = "";
+                                        old[rank][file] = "BQ";
+                                        break;
+                                    }
+                                    if (!old[r][f].equals("")) {
+                                        old[b[0]][b[1]] = "";
+                                        old[rank][file] = "BQ";
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -920,7 +1160,7 @@ public class Parser {
                             }
                         }
                         old[rank][file] = "WK";
-                        old[r][f] = "   ";
+                        old[r][f] = "  ";
                     } else {
                         int f = 0;
                         int r = 0;
@@ -935,7 +1175,7 @@ public class Parser {
                             }
                         }
                         old[rank][file] = "BK";
-                        old[r][f] = "   ";
+                        old[r][f] = "  ";
                     }
                 }
             }
@@ -952,7 +1192,7 @@ public class Parser {
                     String[] y = now.getAll()[p];
                     System.out.print((p + 1) + ": |");
                     for (String x : y) {
-                        if (x != "") {
+                        if (!"".equals(x)) {
                             System.out.print(x + " |");
                         } else {
                             System.out.print("   |");

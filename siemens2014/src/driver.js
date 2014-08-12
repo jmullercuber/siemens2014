@@ -17,7 +17,8 @@ var fileLoc = 'File:' + arguments[0];
 var gameList = Parser.parseGames(fileLoc);
 // Get access to a GameLooper
 var gameLooper = new GameLooper();
-gameLooper.addCalculator(TotalisticXUnweightedCenter);
+gameLooper.addCalculator(TotalisticUnweightedCenter('x'));
+gameLooper.addCalculator(TotalisticWeightedCenter('x'));
 // gameLooper.addCalculator(<calcNameHere>);
 
 

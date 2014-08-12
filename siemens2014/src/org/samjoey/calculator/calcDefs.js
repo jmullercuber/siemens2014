@@ -60,7 +60,28 @@ var CenterOfMass = function(x_or_y, pieceWeigth, filterFunc, calcName) {
  };
 
 
-var TotalisticXUnweightedCenter = CenterOfMass('x',undefined,undefined,'TotalXCoorUnweigthedCenter');
+var TotalisticUnweightedCenter = function(dir) {
+	return CenterOfMass(dir,undefined,undefined,'Total' + dir + 'CoorUnweigthedCenter');
+}
+
+var TotalisticWeightedCenter = function(dir) {
+	return CenterOfMass(
+		dir,
+		function(pType){
+			pDict = {
+				"P": 1,		// Pawn
+				"B": 3,		// Bishop
+				"N": 3,		// Knight
+				"R": 7,		// Rook
+				"Q": 10,	// Queen
+				"K": 10		// King
+			}
+			return pDict[pType.substring(1)];
+		},
+		undefined,
+		'Total' + dir + 'CoorWeigthedCenter'
+	);
+};
 
 
 /*var PlayerWeightedCenter = new Calculator(

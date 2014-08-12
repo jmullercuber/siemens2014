@@ -1268,7 +1268,7 @@ public class Parser {
                             }
                         }
                         old[rank][file] = "WK";
-                        old[r][f] = "  ";
+                        old[r][f] = "";
                     } else {
                         int f = 0;
                         int r = 0;
@@ -1283,7 +1283,7 @@ public class Parser {
                             }
                         }
                         old[rank][file] = "BK";
-                        old[r][f] = "  ";
+                        old[r][f] = "";
                     }
                 }
             }

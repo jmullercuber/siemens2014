@@ -35,6 +35,7 @@ for (var i=0; i<gameList.size(); i++) {
 	gameLooper.calculate();
 	
 	// show the results
+	print("-----------------------------------");
 	gameLooper.read();
 	
 	// prepare to move on to the next

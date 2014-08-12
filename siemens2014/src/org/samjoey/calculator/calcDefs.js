@@ -2,7 +2,7 @@
  * Here place definitions for various pre-made Calculators
  * These names will be imported to the driver, and will
  * have local meaning there.
- * Purpuse: To not culter up that precious driver file 
+ * Purpose: To not culter up that precious driver file 
  */
 
 load ('org/samjoey/calculator/Calculator.js');
@@ -61,20 +61,28 @@ var CenterOfMass = function(x_or_y, pieceWeigth, filterFunc, calcName) {
 
 
 var TotalisticUnweightedCenter = function(dir) {
-	return CenterOfMass(dir,undefined,undefined,'Total' + dir + 'CoorUnweigthedCenter');
-}
+	return CenterOfMass(
+		dir,
+		undefined,
+		undefined,
+		'Total' + dir + 'CoorUnweigthedCenter'
+	);
+};
 
 var TotalisticWeightedCenter = function(dir) {
 	return CenterOfMass(
 		dir,
 		function(pType){
-			pDict = {
+			var pDict = {
 				"P": 1,		// Pawn
 				"B": 3,		// Bishop
 				"N": 3,		// Knight
 				"R": 7,		// Rook
 				"Q": 10,	// Queen
 				"K": 10		// King
+			};
+			if (pDict[pType.substring(1)] == undefined) {
+				throw new Error("Unknown Piece:\t->" + pType + "<-");
 			}
 			return pDict[pType.substring(1)];
 		},

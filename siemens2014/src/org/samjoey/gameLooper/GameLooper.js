@@ -76,7 +76,7 @@ function GameLooper(initialGame, calcList) {
 			// We are done with this game
 		}
 		finally {
-			print("Done calculating with this Game");
+			//print("Done calculating with this Game");
 		}
 	}
 	
@@ -88,7 +88,7 @@ function GameLooper(initialGame, calcList) {
 		}
 		
 		// Header
-		print("Reading Game: " + currentGame.toString());
+		print("Reading Game: " + currentGame.getId());
 		
 		// for every var/calculator we track ...
 		for (var i=0; i<this.calcs.length; i++) {

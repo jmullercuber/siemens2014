@@ -10,7 +10,20 @@ load("org/samjoey/calculator/calcDefs.js");
 
 
 // in JS, use arguments vs args
-var fileLoc = 'File:' + arguments[0];
+var fileLoc = arguments[0];
+
+// Used in Windows only start
+/*if (arguments.indexOf("-s") > -1 || arguments.indexOf("--short-address") > -1) {
+	var lastArg = arguments[arguments.length-1];
+	var fileLoc = lastArg.substring(0, lastArg.length-4) + "docs/" + arguments[0];	// 4 for "src\"
+}
+fileLoc.replace("\\", "/", "g");
+if (fileLoc.indexOf("C:") == 0) {
+	fileLoc = fileLoc.substring(2);
+}*/
+// Done Windows only
+
+fileLoc = 'File:' + fileLoc;
 
 
 // Retrieve an ArrayList of Games to analyze

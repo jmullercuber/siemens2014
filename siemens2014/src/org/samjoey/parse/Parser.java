@@ -17,14 +17,15 @@ package org.samjoey.parse;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Scanner;
 import org.samjoey.model.Board;
 import org.samjoey.model.Game;
@@ -189,7 +190,7 @@ public class Parser {
      * @throws IOException there was an issue reading the file.
      */
     public static LinkedList<Game> parseGames(String fileLocation) throws URISyntaxException, IOException {
-        File file = new File(new URI(fileLocation));
+        File file = new File(fileLocation);
         return parseGames(file);
     }
 
@@ -202,7 +203,7 @@ public class Parser {
      * @throws IOException
      */
     private static LinkedList<Game> parseGames(File file) throws IOException {
-        BufferedReader reader = Files.newBufferedReader(file.toPath(), Charset.forName("US-ASCII"));
+        BufferedReader reader = new BufferedReader(new FileReader(file));
         LinkedList<String> lines = new LinkedList<>();
         String line;
         //Read the input into a linked list.

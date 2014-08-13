@@ -1,13 +1,10 @@
 load ('org/samjoey/calculator/Calculator.js');
+importClass(Packages.org.samjoey.calculator.Calculator);
 
 function GameLooper(initialGame, calcList) {
 	/*
 	 To do:
-	 research how rhino deals with undefined vs null
-	 //figure out type of error open() should throw
-	 	nope, from MDN I understand how to throw Error
-	 implement calculate()
-	 implement read() or move functionality to different class
+	 research whether to use undefined or null
 	*/
 	
 	//----------------------Attributes----------------------
@@ -46,7 +43,7 @@ function GameLooper(initialGame, calcList) {
 	
 	// addCalculator() makes each GameLooper different. Calculates different stuff
 	this.addCalculator = function(oneCalc) {
-		if (!(oneCalc instanceof Calculator)) {
+		if (!(oneCalc instanceof Calculator) && !(oneCalc instanceof org.samjoey.calculator.Calculator)) {
 			// not a real Calculator
 			throw new TypeError("GameLooper - NotABonafideCalc");
 		}

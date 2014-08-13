@@ -190,7 +190,7 @@ public class Parser {
      * @throws IOException there was an issue reading the file.
      */
     public static LinkedList<Game> parseGames(String fileLocation) throws URISyntaxException, IOException {
-        File file = new File(fileLocation);
+        File file = new File(new URI(fileLocation));
         return parseGames(file);
     }
 

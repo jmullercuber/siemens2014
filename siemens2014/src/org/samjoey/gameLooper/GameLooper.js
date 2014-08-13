@@ -1,5 +1,5 @@
 load ('org/samjoey/calculator/Calculator.js');
-importClass(Packages.org.samjoey.calculator.Calculator);
+importClass(Packages.org.samjoey.calculator.JCalculator);
 
 function GameLooper(initialGame, calcList) {
 	/*

@@ -5,6 +5,7 @@ print("Hello, World!");
 //importClass(Packages.org.model.Board);   // driver shouldn't interact with Boards
 importClass(Packages.org.samjoey.parse.Parser);
 importClass(Packages.org.samjoey.model.Game);
+importClass(Packages.org.samjoey.pattern.PatternFinder);
 load("org/samjoey/gameLooper/GameLooper.js");  // import straight js
 load("org/samjoey/calculator/calcDefs.js");
 
@@ -55,3 +56,4 @@ for (var i=0; i<gameList.size(); i++) {
 	gameLooper.close();
 	
 }
+PatternFinder.findPatterns(gameList);

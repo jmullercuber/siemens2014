@@ -21,7 +21,7 @@ import org.samjoey.model.Board;
  *
  * @author Joey
  */
-public abstract class Calculator {
+public abstract class JCalculator {
     public String name;
     public abstract Double evaluate(Board b);
 }

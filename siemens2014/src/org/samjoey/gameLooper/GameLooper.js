@@ -43,7 +43,7 @@ function GameLooper(initialGame, calcList) {
 	
 	// addCalculator() makes each GameLooper different. Calculates different stuff
 	this.addCalculator = function(oneCalc) {
-		if (!(oneCalc instanceof Calculator) && !(oneCalc instanceof org.samjoey.calculator.Calculator)) {
+		if (!(oneCalc instanceof Calculator) && !(oneCalc instanceof org.samjoey.calculator.JCalculator)) {
 			// not a real Calculator
 			throw new TypeError("GameLooper - NotABonafideCalc");
 		}

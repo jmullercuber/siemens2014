@@ -6,6 +6,10 @@ print("Hello, World!");
 importClass(Packages.org.samjoey.parse.Parser);
 importClass(Packages.org.samjoey.model.Game);
 importClass(Packages.org.samjoey.pattern.PatternFinder);
+importClass(Packages.org.samjoey.calculator.JCalculatorPawnMovement);
+importClass(Packages.org.samjoey.calculator.JCalculatorWhiteChecks);
+importClass(Packages.org.samjoey.calculator.JCalculatorBlackChecks);
+importClass(Packages.org.samjoey.calculator.JCalculatorMoveTime);
 load("org/samjoey/gameLooper/GameLooper.js");  // import straight js
 load("org/samjoey/calculator/calcDefs.js");
 
@@ -35,6 +39,10 @@ gameLooper.addCalculator(TotalisticUnweightedCenter('x'));
 gameLooper.addCalculator(TotalisticWeightedCenter('x'));
 gameLooper.addCalculator(TotalisticUnweightedCount);
 gameLooper.addCalculator(TotalisticWeightedCount);
+gameLooper.addCalculator(new JCalculatorPawnMovement());
+gameLooper.addCalculator(new JCalculatorWhiteChecks());
+gameLooper.addCalculator(new JCalculatorBlackChecks());
+gameLooper.addCalculator(new JCalculatorMoveTime());
 // gameLooper.addCalculator(<calcNameHere>);
 
 

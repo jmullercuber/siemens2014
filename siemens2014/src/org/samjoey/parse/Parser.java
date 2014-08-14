@@ -387,7 +387,7 @@ public class Parser {
             //Get the move
             String str = moves.get(i);
             //Copy it in case of edit
-            String orig = str;
+            String orig = new String(str);
             Board now = new Board();
             //Set the player
             if (last.getPlayer() == 0 || last.getPlayer() == 2) {
@@ -395,6 +395,8 @@ public class Parser {
             } else {
                 now.setPlayer(2);
             }
+            
+            now.setMove(orig);
 
             //For debugging purposes, print information if print is true
             if (print) {

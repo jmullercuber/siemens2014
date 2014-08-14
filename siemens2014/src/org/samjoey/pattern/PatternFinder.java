@@ -15,6 +15,7 @@
  */
 package org.samjoey.pattern;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,6 +24,8 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
@@ -115,6 +118,20 @@ public class PatternFinder {
                     true, // tooltips
                     false // urls
                     );
+            XYPlot plot = chart.getXYPlot();
+            XYItemRenderer rend = plot.getRenderer();
+            for(int i = 0; i < games.size(); i ++){
+                Game g = games.get(i);
+                if(g.getWinner() == 1){
+                    rend.setSeriesPaint(i, Color.RED);
+                } 
+                if(g.getWinner() == 2){
+                    rend.setSeriesPaint(i, Color.BLACK);
+                } 
+                if(g.getWinner() == 0){
+                    rend.setSeriesPaint(i, Color.PINK);
+                } 
+            }
             ChartPanel chartPanel = new ChartPanel(chart);
             f.setContentPane(chartPanel);
             f.pack();
@@ -127,7 +144,7 @@ public class PatternFinder {
         XYSeries series = new XYSeries(id);
         int count = 0;
         for (Double d : var) {
-            if (count > var.size() / 3) {
+            if (count > var.size()) {
                 break;
             }
             series.add(count, d);

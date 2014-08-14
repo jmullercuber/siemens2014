@@ -38,6 +38,15 @@ public class Board {
     private int whoseTurn; //0 if none, 1 if white, 2 if black
     private double time; //The time the player took to make this move
     private boolean opponentInCheck; //Did this move put the opponent in check?
+    private String move;
+
+    public String getMove() {
+        return move;
+    }
+
+    public void setMove(String move) {
+        this.move = move;
+    }
     
     //Gets all moves
     public String[][] getAll(){

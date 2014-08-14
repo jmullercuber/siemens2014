@@ -42,6 +42,9 @@ public abstract class graphicalLook extends javax.swing.JFrame {
 
         jScrollPane2 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenu2 = new javax.swing.JMenu();
         jPanelParser = new javax.swing.JPanel();
         jProgressBar_Parser = new javax.swing.JProgressBar();
         jButton_OpenFile = new javax.swing.JButton();
@@ -63,6 +66,11 @@ public abstract class graphicalLook extends javax.swing.JFrame {
         jLabel_PlyCount = new javax.swing.JLabel();
         jLabelStatusBody = new javax.swing.JLabel();
         jLabelStatusHeader = new javax.swing.JLabel();
+        jMenuBar2 = new javax.swing.JMenuBar();
+        jMenu_File = new javax.swing.JMenu();
+        jMenuItem_File_Open = new javax.swing.JMenuItem();
+        jMenu_Edit = new javax.swing.JMenu();
+        jMenuItem_ModCalcs = new javax.swing.JMenuItem();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -76,6 +84,12 @@ public abstract class graphicalLook extends javax.swing.JFrame {
             }
         ));
         jScrollPane2.setViewportView(jTable1);
+
+        jMenu1.setText("File");
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Edit");
+        jMenuBar1.add(jMenu2);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -140,12 +154,13 @@ public abstract class graphicalLook extends javax.swing.JFrame {
 
         jPanelCalculator.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Calculator", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Trebuchet MS", 1, 12), new java.awt.Color(51, 51, 0))); // NOI18N
 
+        jTable_Calculator.setAutoCreateRowSorter(true);
         jTable_Calculator.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null}
             },
             new String [] {
-                "Ply", "Player", "Title 3"
+                "Ply", "Player", "Value"
             }
         ) {
             Class[] types = new Class [] {
@@ -267,6 +282,27 @@ public abstract class graphicalLook extends javax.swing.JFrame {
         jLabelStatusHeader.setText("Status:");
         jLabelStatusHeader.setToolTipText("");
 
+        jMenu_File.setText("File");
+
+        jMenuItem_File_Open.setText("Open...");
+        jMenuItem_File_Open.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem_File_OpenActionPerformed(evt);
+            }
+        });
+        jMenu_File.add(jMenuItem_File_Open);
+
+        jMenuBar2.add(jMenu_File);
+
+        jMenu_Edit.setText("Edit");
+
+        jMenuItem_ModCalcs.setText("Modify Calculators");
+        jMenu_Edit.add(jMenuItem_ModCalcs);
+
+        jMenuBar2.add(jMenu_Edit);
+
+        setJMenuBar(jMenuBar2);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -330,6 +366,7 @@ public abstract class graphicalLook extends javax.swing.JFrame {
             if (returnVal == JFileChooser.APPROVE_OPTION) {
                 final java.io.File file = fc.getSelectedFile();
                 //This is where a real application would open the file.
+                jTextField_PGNLocation.setText(file.getName());
                 jLabelStatusBody.setText("Reading " + file.getName());
                 (new Thread() {
                     public void run() {
@@ -341,6 +378,10 @@ public abstract class graphicalLook extends javax.swing.JFrame {
                 jLabelStatusBody.setText("Open command cancelled by user.");
             }
     }//GEN-LAST:event_jButton_OpenFileMouseClicked
+
+    private void jMenuItem_File_OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem_File_OpenActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem_File_OpenActionPerformed
     
     public void selectedPGN(java.io.File file) {
         jLabelStatusBody.setText("Done parsing");
@@ -395,6 +436,14 @@ public abstract class graphicalLook extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel_GamesFound;
     protected javax.swing.JLabel jLabel_PlyCount;
     protected javax.swing.JList jList_GamesList;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuBar jMenuBar2;
+    private javax.swing.JMenuItem jMenuItem_File_Open;
+    private javax.swing.JMenuItem jMenuItem_ModCalcs;
+    private javax.swing.JMenu jMenu_Edit;
+    private javax.swing.JMenu jMenu_File;
     private javax.swing.JPanel jPanelCalculator;
     private javax.swing.JPanel jPanelGameViewer;
     private javax.swing.JPanel jPanelParser;

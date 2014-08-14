@@ -33,6 +33,8 @@ var gameList = Parser.parseGames(fileLoc);
 var gameLooper = new GameLooper();
 gameLooper.addCalculator(TotalisticUnweightedCenter('x'));
 gameLooper.addCalculator(TotalisticWeightedCenter('x'));
+gameLooper.addCalculator(TotalisticUnweightedCount);
+gameLooper.addCalculator(TotalisticWeightedCount);
 // gameLooper.addCalculator(<calcNameHere>);
 
 

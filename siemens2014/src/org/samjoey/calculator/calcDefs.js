@@ -12,7 +12,7 @@ load ('org/samjoey/calculator/Calculator.js');
 var CenterOfMass = function(x_or_y, pieceWeigth, filterFunc, calcName) {
 	// arguments
 	//  In what direction shouid we calculate? 'x', or file, by default
-	x_or_y = x_or_y || 'x'
+	x_or_y = x_or_y || 'x';
 	
 	// How much is each piece worth? Weight each piece's value
 	pieceWeigth = pieceWeigth || (function(pieceID) {return 1;});
@@ -60,6 +60,49 @@ var CenterOfMass = function(x_or_y, pieceWeigth, filterFunc, calcName) {
  };
 
 
+// PieceCount is a function factory
+var PieceCount = function(pieceWeigth, filterFunc, calcName) {
+	// arguments
+	
+	// How much is each piece worth? Weight each piece's value
+	pieceWeigth = pieceWeigth || (function(pieceID) {return 1;});
+	
+	// What types of pieces do we want? White, Black, All? Filter the list
+	filterFunc = filterFunc || (function(pieceEntry, board) {return true;});
+	
+	// And give it a name!
+	calcName = calcName || "PieceCount";
+	
+	return new Calculator(
+		calcName,
+		function(board) {
+			// arguments
+			// Get a list of pieces...
+			var pList = board.exportPiecesToList();
+			// ... and filter it
+			var pieceList = [];
+			for (var i=0; i<pList.size(); i++) {
+				if (filterFunc(pList.get(i), board)) {
+					pieceList.push(pList.get(i));
+				}
+			}
+			
+			// partial sum
+			var total_mass = 0;
+			
+			// Figure Count by summing weights for every piece
+			for (var i=0; i<pieceList.length; i++) {
+				var pieceData = pieceList[i];
+				
+				total_mass += pieceWeigth(pieceData.get(0));
+			}
+			
+			return total_mass;
+		}
+	);
+ };
+
+
 var TotalisticUnweightedCenter = function(dir) {
 	return CenterOfMass(
 		dir,
@@ -90,6 +133,32 @@ var TotalisticWeightedCenter = function(dir) {
 		'Total' + dir + 'CoorWeigthedCenter'
 	);
 };
+
+
+var TotalisticUnweightedCount = new PieceCount(
+	undefined,
+	undefined,
+	'TotalUnweigthedCount'
+);
+
+var TotalisticWeightedCount = new PieceCount(
+	function(pType){
+		var pDict = {
+			"P": 1,		// Pawn
+			"B": 3,		// Bishop
+			"N": 3,		// Knight
+			"R": 7,		// Rook
+			"Q": 10,	// Queen
+			"K": 10		// King
+		};
+		if (pDict[pType.substring(1)] == undefined) {
+			throw new Error("Unknown Piece:\t->" + pType + "<-");
+		}
+		return pDict[pType.substring(1)];
+	},
+	undefined,
+	'TotalWeigthedCount'
+);
 
 
 /*var PlayerWeightedCenter = new Calculator(

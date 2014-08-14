@@ -16,7 +16,16 @@
 package org.samjoey.pattern;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import javax.swing.JFrame;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.RefineryUtilities;
 import org.samjoey.model.Game;
 
 /**
@@ -24,6 +33,7 @@ import org.samjoey.model.Game;
  * @author Sam
  */
 public class PatternFinder {
+
     private static double THRESHHOLD = .75;
 
     public static void findPatterns(LinkedList<Game> games) {
@@ -34,30 +44,95 @@ public class PatternFinder {
                 for (int i = 0; i < data.size() - 3; i++) {
                     boolean added = false;
                     for (Pattern p : pats) {
-                        if (p.doesGameMatch(game, i)) {
-                            p.addGame(game, i);
-                            added = true;
+                        try {
+                            if (p.doesGameMatch(game, i)) {
+                                p.addGame(game, i);
+                                added = true;
+                            }
+                        } catch (Exception e) {
+                            System.out.println("E" + 1);
                         }
                     }
-                    if(!added){
-                        if(Math.abs(data.get(i) - data.get(i + 1)) < THRESHHOLD && Math.abs(data.get(i + 1) - data.get(i + 2)) < THRESHHOLD){
-                            ArrayList<Double> def = new ArrayList<>();
-                            def.add(data.get(i));
-                            def.add(data.get(i + 1));
-                            def.add(data.get(i + 2));
-                            Pattern p = new Pattern(def, key);
+                    if (!added) {
+                        try {
+                            if (Math.abs(data.get(i) - data.get(i + 1)) > THRESHHOLD && Math.abs(data.get(i + 1) - data.get(i + 2)) > THRESHHOLD) {
+                                ArrayList<Double> def = new ArrayList<>();
+                                def.add(data.get(i));
+                                def.add(data.get(i + 1));
+                                def.add(data.get(i + 2));
+                                Pattern p = new Pattern(def, key);
+                                pats.add(p);
+                            }
+                        } catch (Exception e) {
+                            System.out.println("E" + 2);
                         }
                     }
                 }
             }
         }
-        if(pats.size() < 3){
+        if (pats.size() < 3 && THRESHHOLD > 0) {
             PatternFinder.THRESHHOLD -= .1;
             findPatterns(games);
             return;
         }
-        for(Pattern p : pats){
-            System.out.println(p);
+
+//        int i = (int) (Math.random() * pats.size());
+//        Pattern p = pats.get(i);
+//        System.out.println(p);
+//        createGraphs(p.getMatches());
+//        for (Pattern p : pats) {
+//            System.out.println(p);
+//        }
+//        System.out.println(THRESHHOLD);
+        createGraphs(games);
+    }
+
+    public static void createGraphs(LinkedList<Game> games) {
+        HashMap<String, XYSeriesCollection> datasets = new HashMap<>();
+        for (Game game : games) {
+            for (String key : game.getVarData().keySet()) {
+                if (datasets.containsKey(key)) {
+                    try {
+                        datasets.get(key).addSeries(createSeries(game.getVar(key), game.getId()));
+                    } catch (Exception e) {
+                    }
+                } else {
+                    datasets.put(key, new XYSeriesCollection());
+                    datasets.get(key).addSeries(createSeries(game.getVar(key), game.getId()));
+                }
+            }
         }
+
+        for (String key : datasets.keySet()) {
+            JFrame f = new JFrame();
+            JFreeChart chart = ChartFactory.createXYLineChart(
+                    key, // chart title
+                    "X", // x axis label
+                    "Y", // y axis label
+                    datasets.get(key), // data
+                    PlotOrientation.VERTICAL,
+                    false, // include legend
+                    true, // tooltips
+                    false // urls
+                    );
+            ChartPanel chartPanel = new ChartPanel(chart);
+            f.setContentPane(chartPanel);
+            f.pack();
+            RefineryUtilities.centerFrameOnScreen(f);
+            f.setVisible(true);
+        }
+    }
+
+    private static XYSeries createSeries(ArrayList<Double> var, int id) {
+        XYSeries series = new XYSeries(id);
+        int count = 0;
+        for (Double d : var) {
+            if (count > var.size() / 3) {
+                break;
+            }
+            series.add(count, d);
+            count++;
+        }
+        return series;
     }
 }

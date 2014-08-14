@@ -16,6 +16,7 @@
 package org.samjoey.pattern;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import org.samjoey.model.Game;
 
 /**
@@ -23,45 +24,60 @@ import org.samjoey.model.Game;
  * @author Sam
  */
 public class Pattern {
+
     private static final double THRESHHOLD = .15;
-    
     private ArrayList<Double> definition;
-    private ArrayList<Game> matches;
+    private LinkedList<Game> matches;
     private ArrayList<Integer> positions;
     private String varType;
-    
-    public Pattern(ArrayList<Double> def, String var){
+
+    public Pattern(ArrayList<Double> def, String var) {
         this.definition = def;
         this.varType = var;
+        matches = new LinkedList<>();
+        positions = new ArrayList<>();
     }
-    
-    public void addGame(Game game, Integer position){
+
+    public void addGame(Game game, Integer position) {
         matches.add(game);
         positions.add(position);
     }
-    
-    @Override
-    public String toString(){
-        String ret = "Pattern: " + super.toString() + "\n\r\t";
-        ret += "Var: " + varType  + "\n\r\t";
-        ret += "Games: [";
-        for(Game g : matches){
-            ret += g.getId() + ", ";
-        }
-        ret += "]\n\r\t";
-        ret += "Positions: [";
-        for(int i : positions){
-            ret += i + ", ";
-        }
-        ret += "]\n\r\t";
-        return ret;
+
+    public LinkedList<Game> getMatches() {
+        return matches;
+    }
+
+    public ArrayList<Integer> getPositions() {
+        return positions;
     }
     
-    public boolean doesGameMatch(Game g, int start){
+    @Override
+    public String toString() {
+        String ret = "Pattern: " + super.toString() + "\n\r\t";
+        ret += "Var: " + varType + "\n\r\t";
+        ret += "Def: [";
+        for (Double d : definition) {
+            ret += d + ", ";
+        }
+        ret += "\b\b]\n\r\t";
+        ret += "Games: [";
+        for (Game g : matches) {
+            ret += g.getId() + ", ";
+        }
+        ret += "\b\b]\n\r\t";
+        ret += "Positions: [";
+        for (int i : positions) {
+            ret += i + ", ";
+        }
+        ret += "\b\b]\n\r\t";
+        return ret;
+    }
+
+    public boolean doesGameMatch(Game g, int start) {
         ArrayList<Double> check = g.getVar(varType);
-        for(int i = 0; i < this.definition.size(); i++){
+        for (int i = 0; i < this.definition.size() - 1; i++) {
             int j = start + i;
-            if(Math.abs(this.definition.get(i) - check.get(j)) > THRESHHOLD){
+            if (Math.abs((this.definition.get(i) - this.definition.get(i + 1)) - (check.get(j) - check.get(j + 1))) > THRESHHOLD) {
                 return false;
             }
         }

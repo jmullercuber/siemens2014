@@ -5,6 +5,7 @@ print("Hello, World!");
 //importClass(Packages.org.model.Board);   // driver shouldn't interact with Boards
 importClass(Packages.org.samjoey.parse.Parser);
 importClass(Packages.org.samjoey.model.Game);
+importPackage(Packages.org.samjoey.calculator);
 importClass(Packages.org.samjoey.pattern.PatternFinder);
 load("org/samjoey/gameLooper/GameLooper.js");  // import straight js
 load("org/samjoey/calculator/calcDefs.js");
@@ -24,7 +25,7 @@ if (fileLoc.indexOf("C:") == 0) {
 }*/
 // Done Windows only
 
-fileLoc = 'File:' + fileLoc;
+//fileLoc = 'File:' + fileLoc;
 
 
 // Retrieve an ArrayList of Games to analyze
@@ -33,8 +34,13 @@ var gameList = Parser.parseGames(fileLoc);
 var gameLooper = new GameLooper();
 gameLooper.addCalculator(TotalisticUnweightedCenter('x'));
 gameLooper.addCalculator(TotalisticWeightedCenter('x'));
-gameLooper.addCalculator(TotalisticUnweightedCount);
-gameLooper.addCalculator(TotalisticWeightedCount);
+//gameLooper.addCalculator(PieceCountVars(white_or_black_or_all, weighted_or_unweighted));
+gameLooper.addCalculator(PieceCountVars("White", "Weighted"));
+gameLooper.addCalculator(PieceCountVars("White", "Unweighted"));
+gameLooper.addCalculator(PieceCountVars("Black", "Weighted"));
+gameLooper.addCalculator(PieceCountVars("Black", "Unweighted"));
+gameLooper.addCalculator(PieceCountVars("Total", "Weighted"));
+gameLooper.addCalculator(PieceCountVars("Total", "Unweighted"));
 // gameLooper.addCalculator(<calcNameHere>);
 
 

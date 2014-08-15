@@ -12,24 +12,52 @@ load("org/samjoey/calculator/calcDefs.js");
 
 
 // in JS, use arguments vs args
-var fileLoc = arguments[0];
+var CLIArgs = {
+	'fileLoc': "File:",
+	'verbose': false,
+	'graphs': true
+};
 
-// Used in Windows only start
-/*if (arguments.indexOf("-s") > -1 || arguments.indexOf("--short-address") > -1) {
-	var lastArg = arguments[arguments.length-1];
-	var fileLoc = lastArg.substring(0, lastArg.length-4) + "docs/" + arguments[0];	// 4 for "src\"
+for (var i in arguments) {
+	var arg = arguments[i];
+	switch (true) {
+		// Verbose
+		case (arg.indexOf('-v')==0 || arg.indexOf('--verbose')==0 || arg.indexOf('/v')==0):
+			if(arg.indexOf(':')>1) {	// param, like this "$ ./driver.js -v:false"
+				CLIArgs['verbose'] = (arg.substring(arg.indexOf(':')+1)).toLowerCase() === 'true';	// cast parameter to boolean, false is default
+			}
+			else {		// no param, like this "$ ./driver.js -v"
+				CLIArgs['verbose'] = true;
+			}
+			break;
+		// Graphs
+		case (arg.indexOf('-g')==0 || arg.indexOf('--graphs')==0 || arg.indexOf('/g')==0):
+			if(arg.indexOf(':')>1) {	// param, like this "$ ./driver.js -g:false"
+				CLIArgs['graphs'] = (arg.substring(arg.indexOf(':')+1)).toLowerCase() === 'true';	// cast parameter to boolean, false is default
+			}
+			else {		// no param, like this "$ ./driver.js -g"
+				CLIArgs['graphs'] = true;
+			}
+			break;
+		default:
+			if (i == arguments.length-1) {	// if last argument
+				file = new java.io.File(arg);
+				if (file.exists()) {
+					// allows for argument to be non-absolute
+					CLIArgs['fileLoc'] += file.getCanonicalPath();
+					break;
+				}
+				else {
+					throw new Error("Not a valid file");
+				}
+			}
+			throw new Error("Unknown argument -->" + arg + "<--");
+	}
 }
-fileLoc.replace("\\", "/", "g");
-if (fileLoc.indexOf("C:") == 0) {
-	fileLoc = fileLoc.substring(2);
-}*/
-// Done Windows only
-
-//fileLoc = 'File:' + fileLoc;
 
 
 // Retrieve an ArrayList of Games to analyze
-var gameList = Parser.parseGames(fileLoc);
+var gameList = Parser.parseGames(CLIArgs['fileLoc']);
 // Get access to a GameLooper
 var gameLooper = new GameLooper();
 gameLooper.addCalculator(TotalisticUnweightedCenter('x'));
@@ -70,8 +98,10 @@ for (var i=0; i<gameList.size(); i++) {
 	gameLooper.calculate();
 	
 	// show the results
-	print("-----------------------------------");
-	gameLooper.read();
+	if (CLIArgs['verbose']) {
+		print("-----------------------------------");
+		gameLooper.read();
+	}
 	
 	// prepare to move on to the next
 	gameLooper.close();
@@ -79,10 +109,12 @@ for (var i=0; i<gameList.size(); i++) {
 }
 
 // Do the graphical stuff in a new thread
-(new java.lang.Thread(
-	function() {	    // For notation check Rhino documentation. JavaScript Functions as Java Interfaces
-		PatternFinder.createGraphs(gameList);
-	}
-)).start();
+if (CLIArgs['graphs']) {
+	(new java.lang.Thread(
+		function() {	    // For notation check Rhino documentation. JavaScript Functions as Java Interfaces
+			PatternFinder.createGraphs(gameList);
+		}
+	)).start();
+}
 
 print('Done');

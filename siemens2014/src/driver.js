@@ -35,12 +35,15 @@ var gameLooper = new GameLooper();
 gameLooper.addCalculator(TotalisticUnweightedCenter('x'));
 gameLooper.addCalculator(TotalisticWeightedCenter('x'));
 //gameLooper.addCalculator(PieceCountVars(white_or_black_or_all, weighted_or_unweighted));
-gameLooper.addCalculator(PieceCountVars("White", "Weighted"));
-gameLooper.addCalculator(PieceCountVars("White", "Unweighted"));
-gameLooper.addCalculator(PieceCountVars("Black", "Weighted"));
-gameLooper.addCalculator(PieceCountVars("Black", "Unweighted"));
-gameLooper.addCalculator(PieceCountVars("Total", "Weighted"));
-gameLooper.addCalculator(PieceCountVars("Total", "Unweighted"));
+var calcType = {
+	'Players': ["White", "Black", "Total"],
+	'Weights': ["Weighted", "Unweighted"]
+};
+for (i in calcType['Players']) {
+	for (j in calcType['Weights']) {
+		gameLooper.addCalculator(PieceCountVars(calcType['Players'][i], calcType['Weights'][j]));
+	}
+}
 gameLooper.addCalculator(new JCalculatorWhiteChecks());
 // gameLooper.addCalculator(<calcNameHere>);
 

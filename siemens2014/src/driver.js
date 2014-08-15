@@ -65,4 +65,12 @@ for (var i=0; i<gameList.size(); i++) {
 	gameLooper.close();
 	
 }
-PatternFinder.findPatterns(gameList);
+
+// Do the graphical stuff in a new thread
+(new java.lang.Thread(
+	function() {	    // For notation check Rhino documentation. JavaScript Functions as Java Interfaces
+		PatternFinder.createGraphs(gameList);
+	}
+)).start();
+
+print('Done');

@@ -7,10 +7,6 @@ importClass(Packages.org.samjoey.parse.Parser);
 importClass(Packages.org.samjoey.model.Game);
 importPackage(Packages.org.samjoey.calculator);
 importClass(Packages.org.samjoey.pattern.PatternFinder);
-importClass(Packages.org.samjoey.calculator.JCalculatorPawnMovement);
-importClass(Packages.org.samjoey.calculator.JCalculatorWhiteChecks);
-importClass(Packages.org.samjoey.calculator.JCalculatorBlackChecks);
-importClass(Packages.org.samjoey.calculator.JCalculatorMoveTime);
 load("org/samjoey/gameLooper/GameLooper.js");  // import straight js
 load("org/samjoey/calculator/calcDefs.js");
 
@@ -45,6 +41,7 @@ gameLooper.addCalculator(PieceCountVars("Black", "Weighted"));
 gameLooper.addCalculator(PieceCountVars("Black", "Unweighted"));
 gameLooper.addCalculator(PieceCountVars("Total", "Weighted"));
 gameLooper.addCalculator(PieceCountVars("Total", "Unweighted"));
+gameLooper.addCalculator(new JCalculatorWhiteChecks());
 // gameLooper.addCalculator(<calcNameHere>);
 
 

@@ -21,17 +21,16 @@ import org.samjoey.model.Board;
  *
  * @author Sam
  */
-public class JCalculatorBlackChecks extends JCalculator{
-    public JCalculatorBlackChecks(){
-        super("BlackChecks");
+public class JCalculatorBlackMoveTime extends JCalculator{
+    public JCalculatorBlackMoveTime() {
+        super("BlackMoveTime");
     }
-    
+
     @Override
     public Double evaluate(Board b) {
-        if(b.getPlayer() == 1){
-            if(b.isOpponentInCheck()) return 1.0;
+        if (b.getPlayer() == 2) {
+            return b.getTime();
         }
         return 0.0;
     }
-    
 }

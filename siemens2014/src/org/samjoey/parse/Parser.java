@@ -404,7 +404,7 @@ public class Parser {
                 System.out.println(now.getPlayer());
             }
             //Set the time for the move
-            now.setTime(times.get(i));
+            now.setTime(times.get(i) / game.getTimeAllowedPerPlayer());
             //Check for special cases in the move
             String special = checkForSpecialMoves(str);
             //Check what piece this move moves.

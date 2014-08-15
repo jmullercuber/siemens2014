@@ -22,7 +22,9 @@ import org.samjoey.model.Board;
  * @author Sam
  */
 public class JCalculatorBlackChecks extends JCalculator{
-    public String name = "BlackChecks";
+    public JCalculatorBlackChecks(){
+        super("BlackChecks");
+    }
     
     @Override
     public Double evaluate(Board b) {

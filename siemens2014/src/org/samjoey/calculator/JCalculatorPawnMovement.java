@@ -24,7 +24,9 @@ import org.samjoey.model.Board;
 public class JCalculatorPawnMovement
         extends JCalculator {
 
-    public String name = "PawnMovement";
+    public JCalculatorPawnMovement(){
+        super("PawnMovement");
+    }
 
     @Override
     public Double evaluate(Board b) {

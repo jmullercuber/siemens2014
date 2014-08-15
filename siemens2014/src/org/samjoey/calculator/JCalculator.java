@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.samjoey.calculator;
 
 import org.samjoey.model.Board;
+
 /**
  *
  * @author Joey
  */
 public abstract class JCalculator {
-    public String name;
+
+    public final String name;
+
     public abstract Double evaluate(Board b);
+
+    public JCalculator(String name) {
+        this.name = name;
+    }
 }

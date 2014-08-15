@@ -22,7 +22,9 @@ import org.samjoey.model.Board;
  * @author Sam
  */
 public class JCalculatorMoveTime extends JCalculator{
-    public String name = "MoveTime";
+    public JCalculatorMoveTime(){
+        super("MoveTime");
+    }
     
     @Override
     public Double evaluate(Board b) {

@@ -22,7 +22,9 @@ import org.samjoey.model.Board;
  * @author Sam
  */
 public class JCalculatorWhiteChecks extends JCalculator{
-    public String name = "WhiteChecks";
+    public JCalculatorWhiteChecks(){
+        super("WhiteChecks");
+    }
     
     @Override
     public Double evaluate(Board b) {

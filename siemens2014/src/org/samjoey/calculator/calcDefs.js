@@ -103,6 +103,49 @@ var PieceCount = function(pieceWeight, filterFunc, calcName) {
  };
 
 
+// Also a function-factory, but lazily, and relies on PieceCount
+var AveragePieceValue = function(white_or_black_or_all) {
+	// AvgValue cheats off weighted piece count
+	// All the eval really needs to do is take the sum, and divide by amount
+	var weightedCount = new PieceCountVars(white_or_black_or_all, "Weighted");
+	var copyEvalFunc = weightedCount.evaluate;	    // NOTE there are  NOO parenteses!! We want the function, not the value
+	
+	// Figure how many pieces, black, white, or all
+	//var copyFilterFunc = weightedCount.;
+	var filterFunction;
+	switch (white_or_black_or_all) {
+		case "White":
+			filterFunction = function(pieceEntry){return pieceEntry.get(0).indexOf("W")==0;};
+			break;
+		case "Black":
+			filterFunction = function(pieceEntry){return pieceEntry.get(0).indexOf("B")==0;};
+			break;
+		default:
+			filterFunction = function(){return true;}
+	}
+	
+	
+	return new Calculator(
+		white_or_black_or_all + " AveragePieceValue",
+		function(board) {
+			var pList = board.exportPiecesToList();
+			// ... and filter it
+			var pieceList = [];
+			for (var i=0; i<pList.size(); i++) {
+				if (filterFunction(pList.get(i), board)) {
+					pieceList.push(pList.get(i));
+				}
+			}
+			
+			return copyEvalFunc(board)/pieceList.length;
+			// There's another way to get size with copyFunc.apply, or .call or something
+			// And then copyFunc.pieceList.length (since I't already calculated)
+			// But I don't know off the top of my head w/o studying
+		}
+	);
+};
+
+
 var TotalisticUnweightedCenter = function(dir) {
 	return CenterOfMass(
 		dir,
@@ -149,7 +192,7 @@ var PieceCountVars = function(white_or_black_or_all, weighted_or_unweighted) {
 	}
 	
 	// And are we weighted?
-	var pieceWeight = function(){return true;};
+	var pieceWeight = function(){return 1};
 	if (weighted_or_unweighted == "Weighted") {
 		pieceWeight = function(pType){
 			var pDict = {

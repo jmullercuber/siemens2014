@@ -40,6 +40,7 @@ var calcType = {
 	'Weights': ["Weighted", "Unweighted"]
 };
 for (i in calcType['Players']) {
+	gameLooper.addCalculator(AveragePieceValue(calcType['Players'][i]));
 	for (j in calcType['Weights']) {
 		gameLooper.addCalculator(PieceCountVars(calcType['Players'][i], calcType['Weights'][j]));
 	}

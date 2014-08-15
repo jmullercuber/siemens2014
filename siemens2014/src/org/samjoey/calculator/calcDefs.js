@@ -9,13 +9,13 @@ load ('org/samjoey/calculator/Calculator.js');
 
 
 // CenterOfMass is a function factory
-var CenterOfMass = function(x_or_y, pieceWeight, filterFunc, calcName) {
+var CenterOfMass = function(x_or_y, pieceWeigth, filterFunc, calcName) {
 	// arguments
 	//  In what direction shouid we calculate? 'x', or file, by default
 	x_or_y = x_or_y || 'x';
 	
 	// How much is each piece worth? Weight each piece's value
-	pieceWeight = pieceWeight || (function(pieceID) {return 1;});
+	pieceWeigth = pieceWeigth || (function(pieceID) {return 1;});
 	
 	// What types of pieces do we want? Filter the list
 	filterFunc = filterFunc || (function(pieceEntry) {return true;});
@@ -48,9 +48,9 @@ var CenterOfMass = function(x_or_y, pieceWeight, filterFunc, calcName) {
 			for (var i=0; i<pieceList.length; i++) {
 				var pieceData = pieceList[i];
 				
-				sum_mass_pos['x'] += pieceWeight(pieceData.get(0))*pieceData.get(1);
-				sum_mass_pos['y'] += pieceWeight(pieceData.get(0))*pieceData.get(2);
-				total_mass += pieceWeight(pieceData.get(0));
+				sum_mass_pos['x'] += pieceWeigth(pieceData.get(0))*pieceData.get(1);
+				sum_mass_pos['y'] += pieceWeigth(pieceData.get(0))*pieceData.get(2);
+				total_mass += pieceWeigth(pieceData.get(0));
 			}
 			
 			center_of_mass = sum_mass_pos[x_or_y]/total_mass;
@@ -61,11 +61,11 @@ var CenterOfMass = function(x_or_y, pieceWeight, filterFunc, calcName) {
 
 
 // PieceCount is a function factory
-var PieceCount = function(pieceWeight, filterFunc, calcName) {
+var PieceCount = function(pieceWeigth, filterFunc, calcName) {
 	// arguments
 	
 	// How much is each piece worth? Weight each piece's value
-	pieceWeight = pieceWeight || (function(pieceID) {return 1;});
+	pieceWeigth = pieceWeigth || (function(pieceID) {return 1;});
 	
 	// What types of pieces do we want? White, Black, All? Filter the list
 	filterFunc = filterFunc || (function(pieceEntry, board) {return true;});
@@ -94,7 +94,7 @@ var PieceCount = function(pieceWeight, filterFunc, calcName) {
 			for (var i=0; i<pieceList.length; i++) {
 				var pieceData = pieceList[i];
 				
-				total_mass += pieceWeight(pieceData.get(0));
+				total_mass += pieceWeigth(pieceData.get(0));
 			}
 			
 			return total_mass;
@@ -134,45 +134,31 @@ var TotalisticWeightedCenter = function(dir) {
 	);
 };
 
-var PieceCountVars = function(white_or_black_or_all, weighted_or_unweighted) {
-	// Determine what we are looking for, black, white, or total
-	var filterFunction;
-	switch (white_or_black_or_all) {
-		case "White":
-			filterFunction = function(pieceEntry, board){return pieceEntry.get(0).indexOf("W")==0;};
-			break;
-		case "Black":
-			filterFunction = function(pieceEntry, board){return pieceEntry.get(0).indexOf("B")==0;};
-			break;
-		default:
-			// Leave it as undefined
-	}
-	
-	// And are we weighted?
-	var pieceWeight = function(){return true;};
-	if (weighted_or_unweighted == "Weighted") {
-		pieceWeight = function(pType){
-			var pDict = {
-				"P": 1,		// Pawn
-				"B": 3,		// Bishop
-				"N": 3,		// Knight
-				"R": 7,		// Rook
-				"Q": 10,	// Queen
-				"K": 10		// King
-			};
-			if (pDict[pType.substring(1)] == undefined) {
-				throw new Error("Unknown Piece:\t->" + pType + "<-");
-			}
-			return pDict[pType.substring(1)];
+
+var TotalisticUnweightedCount = new PieceCount(
+	undefined,
+	undefined,
+	'TotalUnweigthedCount'
+);
+
+var TotalisticWeightedCount = new PieceCount(
+	function(pType){
+		var pDict = {
+			"P": 1,		// Pawn
+			"B": 3,		// Bishop
+			"N": 3,		// Knight
+			"R": 7,		// Rook
+			"Q": 10,	// Queen
+			"K": 10		// King
+		};
+		if (pDict[pType.substring(1)] == undefined) {
+			throw new Error("Unknown Piece:\t->" + pType + "<-");
 		}
-	}
-	
-	return PieceCount(
-		pieceWeight,
-		filterFunction,
-		white_or_black_or_all + weighted_or_unweighted + 'Count'
-	);
-};
+		return pDict[pType.substring(1)];
+	},
+	undefined,
+	'TotalWeigthedCount'
+);
 
 
 /*var PlayerWeightedCenter = new Calculator(

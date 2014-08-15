@@ -46,6 +46,14 @@ for (i in calcType['Players']) {
 	}
 }
 gameLooper.addCalculator(new JCalculatorWhiteChecks());
+gameLooper.addCalculator(new JCalculatorBlackChecks());
+gameLooper.addCalculator(new JCalculatorMoveTime());
+gameLooper.addCalculator(new JCalculatorWhiteMoveTime());
+gameLooper.addCalculator(new JCalculatorBlackMoveTime());
+gameLooper.addCalculator(new JCalculatorPawnMovement());
+gameLooper.addCalculator(new JCalculatorMoveDistance());
+gameLooper.addCalculator(new JCalculatorBlackMoveDistance());
+gameLooper.addCalculator(new JCalculatorWhiteMoveDistance());
 // gameLooper.addCalculator(<calcNameHere>);
 
 

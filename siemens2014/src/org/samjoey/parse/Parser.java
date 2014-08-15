@@ -21,8 +21,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -123,7 +121,7 @@ public class Parser {
                         }
 
                         System.out.println(game.getId());
-                        
+
                         Scanner s = new Scanner(System.in);
                         while (!s.hasNext()) {
                         }
@@ -358,28 +356,15 @@ public class Parser {
         game.setBlackTime(blackTime);
         game.setWhiteTime(whiteTime);
         //Separate the string into separate moves
-        LinkedList<String> split = new LinkedList<>(Arrays.asList(s.split(" ")));
-        LinkedList<String> moves = new LinkedList<>();
-        for (int i = 0; i < split.size(); i++) {
-            if (split.get(i).contains("{")) { // Signifies end of moves in moves string
-                break;
-            }
-            if (!split.get(i).contains(".")) {
-                moves.add(split.get(i));
-            }
-        }
+        LinkedList<String> moves = createMoves(s);//
         //The number of plies should equal the number of moves. Report if this is not true. (Note: has not been reported after numerous tests.)
         if (game.getPlyCount() != moves.size()) {
             System.out.println("MISMATCH: " + game.getPlyCount() + "," + moves.size() + ":" + moves.get(moves.size() - 1) + ":" + s);
         }
         //Start creating boards
         LinkedList<Board> boards = new LinkedList<>();
-        Board last = new Board();
-        //The first board will always be the initial board
-        last.setPositions(Board.INITIAL_BOARD.clone());
-        //Player starts at 0 (no one played the first board, it was set up
-        last.setPlayer(0);
-        last.setTime(0);
+        //Prepare the last board
+        Board last = prepareLastBoard();
         //Add it
         boards.add(last);
         //Parse through each move and create a board for it
@@ -395,7 +380,7 @@ public class Parser {
             } else {
                 now.setPlayer(2);
             }
-            
+
             now.setMove(orig);
 
             //For debugging purposes, print information if print is true
@@ -426,31 +411,9 @@ public class Parser {
             }
             //King castle
             if (special.contains("1")) {
-                if (now.getPlayer() == 1) {
-                    old[0][6] = old[0][4];
-                    old[0][4] = "";
-                    old[0][5] = old[0][7];
-                    old[0][7] = "";
-                }
-                if (now.getPlayer() == 2) {
-                    old[7][6] = old[7][4];
-                    old[7][4] = "";
-                    old[7][5] = old[7][7];
-                    old[7][7] = "";
-                }
+                kingsCastle(now, old);
             } else if (special.contains("2")) { //Queen castle
-                if (now.getPlayer() == 1) {
-                    old[0][2] = "WK";
-                    old[0][4] = "";
-                    old[0][3] = "WR";
-                    old[0][0] = "";
-                }
-                if (now.getPlayer() == 2) {
-                    old[7][2] = "BK";
-                    old[7][4] = "";
-                    old[7][3] = "BR";
-                    old[7][0] = "";
-                }
+                queensCastle(now, old);
             } else {
                 if (special.contains("3") || special.contains("4")) { //Set opponent as being in check
                     now.setOpponentInCheck(true);
@@ -1399,6 +1362,69 @@ public class Parser {
                 return 8;
             default:
                 return 0;
+        }
+    }
+
+    /*
+     * Separates the string of moves in individual moves
+     */
+    private static LinkedList<String> createMoves(String s) {
+        LinkedList<String> split = new LinkedList<>(Arrays.asList(s.split(" ")));
+        LinkedList<String> moves = new LinkedList<>();
+        for (int i = 0; i < split.size(); i++) {
+            if (split.get(i).contains("{")) { // Signifies end of moves in moves string
+                break;
+            }
+            if (!split.get(i).contains(".")) {
+                moves.add(split.get(i));
+            }
+        }
+        return moves;
+    }
+
+    /**
+     * For preparing the 'last' board in the Parse boards method
+     *
+     * @return
+     */
+    private static Board prepareLastBoard() {
+        Board last = new Board();
+        //The first board will always be the initial board
+        last.setPositions(Board.INITIAL_BOARD.clone());
+        //Player starts at 0 (no one played the first board, it was set up
+        last.setPlayer(0);
+        last.setTime(0);
+        return last;
+    }
+
+    //Preform the movement necessary for a kings castle
+    private static void kingsCastle(Board now, String[][] old) {
+        if (now.getPlayer() == 1) {
+            old[0][6] = old[0][4];
+            old[0][4] = "";
+            old[0][5] = old[0][7];
+            old[0][7] = "";
+        }
+        if (now.getPlayer() == 2) {
+            old[7][6] = old[7][4];
+            old[7][4] = "";
+            old[7][5] = old[7][7];
+            old[7][7] = "";
+        }
+    }
+
+    private static void queensCastle(Board now, String[][] old) {
+        if (now.getPlayer() == 1) {
+            old[0][2] = "WK";
+            old[0][4] = "";
+            old[0][3] = "WR";
+            old[0][0] = "";
+        }
+        if (now.getPlayer() == 2) {
+            old[7][2] = "BK";
+            old[7][4] = "";
+            old[7][3] = "BR";
+            old[7][0] = "";
         }
     }
 }

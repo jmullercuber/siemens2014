@@ -16,8 +16,15 @@
 
 package org.samjoey.samples;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.filechooser.*;
 import javax.swing.*;
+import org.samjoey.model.Game;
+import org.samjoey.parse.Parser;
 /**
  *
  * @author Guest
@@ -146,7 +153,7 @@ public abstract class graphicalLook extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel_GamesFound)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 164, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addComponent(jProgressBar_Parser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -385,6 +392,13 @@ public abstract class graphicalLook extends javax.swing.JFrame {
     
     public void selectedPGN(java.io.File file) {
         jLabelStatusBody.setText("Done parsing");
+        LinkedList<Game> games;
+        try {
+            games = Parser.parseGames(file.getCanonicalPath());
+        } catch (IOException ex) {
+            Logger.getLogger(graphicalLook.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
     
     /**

@@ -171,8 +171,6 @@ public class Parser {
 
             }
 
-        } catch (URISyntaxException ex) {
-            System.out.println(ex);
         } catch (IOException ex) {
             System.out.println("ex");
         }
@@ -187,7 +185,7 @@ public class Parser {
      * @throws URISyntaxException the location format is not valid.
      * @throws IOException there was an issue reading the file.
      */
-    public static LinkedList<Game> parseGames(String fileLocation) throws URISyntaxException, IOException {
+    public static LinkedList<Game> parseGames(String fileLocation) throws IOException {
         File file = new File(fileLocation);
         return parseGames(file);
     }

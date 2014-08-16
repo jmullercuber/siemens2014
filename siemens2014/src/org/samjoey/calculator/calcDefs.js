@@ -161,18 +161,15 @@ var Symmetry = function(reflect_or_rotate) {
 					for (var j=0; j<pList.size(); j++) {	// look for a match
 						var cpEntry = pList.get(j);
 						if (cpEntry.get(0).indexOf("B")==0) {    // if black
-							if ((cpEntry.get(2).intValue()+pieceEntry.get(2).intValue
-())/2==3.5) {  // if same location from y-axis middle
+							if ((cpEntry.get(2).intValue()+pieceEntry.get(2).intValue())/2==3.5) {  // if same location from y-axis middle
 								if (reflect_or_rotate == 'reflect') {
-									if (cpEntry.get(1).intValue()==pieceEntry.get
-(1).intValue()) {   // if location is reflection
+									if (cpEntry.get(1).intValue()==pieceEntry.get(1).intValue()) {   // if location is reflection
 										total_actual_symmetries_reflect++;
 										break;
 									}
 								}
 								else if (reflect_or_rotate == 'rotate') {
-									if ((cpEntry.get(1).intValue()+pieceEntry.get
-(1).intValue())/2==3.5) {   // if location is rotation
+									if ((cpEntry.get(1).intValue()+pieceEntry.get(1).intValue())/2==3.5) {   // if location is rotation
 										total_actual_symmetries_rotate++;
 										break;
 									}

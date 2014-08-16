@@ -111,8 +111,8 @@ public class Board {
                     // Record certain properties
                     ArrayList pieceEntry = new ArrayList();
                         pieceEntry.add(p);   // the name
-                        pieceEntry.add(new Integer(i));   // the x-coordinate
-                        pieceEntry.add(new Integer(j));   // the y-coordinate
+                        pieceEntry.add(new Integer(j));   // the x-coordinate
+                        pieceEntry.add(new Integer(i));   // the y-coordinate
                     pieceList.add(pieceEntry);
                 }
             }

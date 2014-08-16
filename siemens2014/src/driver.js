@@ -13,7 +13,7 @@ load("org/samjoey/calculator/calcDefs.js");
 
 // in JS, use arguments vs args
 var CLIArgs = {
-	'fileLoc': "File:",
+	'fileLoc': "",
 	'verbose': false,
 	'graphs': true
 };

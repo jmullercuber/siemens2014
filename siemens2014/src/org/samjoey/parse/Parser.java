@@ -188,15 +188,7 @@ public class Parser {
      * @throws IOException there was an issue reading the file.
      */
     public static LinkedList<Game> parseGames(String fileLocation) throws URISyntaxException, IOException {
-        if(fileLocation.indexOf("C:") != -1){
-            fileLocation = fileLocation.substring(0, fileLocation.indexOf("C:")) + fileLocation.substring(fileLocation.indexOf("C:") + 2);
-        }
-        for(int i = 0; i < fileLocation.length(); i ++){
-            if(fileLocation.substring(i, i + 1).equals("\\")){
-                fileLocation = fileLocation.substring(0, i) + "/" + fileLocation.substring(i + 1);
-            }
-        }
-        File file = new File(new URI(fileLocation));
+        File file = new File(fileLocation);
         return parseGames(file);
     }
 

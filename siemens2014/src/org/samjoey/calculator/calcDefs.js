@@ -146,6 +146,54 @@ var AveragePieceValue = function(white_or_black_or_all) {
 };
 
 
+var Symmetry = function(reflect_or_rotate) {
+	return new Calculator(
+		"StraightUpSymmetry" + " " + reflect_or_rotate,
+		function(board) {
+			pList = board.exportPiecesToList();
+			total_possible_symmetries = 0;	// will equal white pieces
+			total_actual_symmetries_reflect = 0;	// will equal black pieces that reflect across x axis
+			total_actual_symmetries_rotate = 0;	// will equal black pieces that rotate around middle
+			for (var i=0; i<pList.size(); i++) {
+				var pieceEntry = pList.get(i);
+				if (pieceEntry.get(0).indexOf("W")==0) {   // if white
+					total_possible_symmetries ++;
+					for (var j=0; j<pList.size(); j++) {	// look for a match
+						var cpEntry = pList.get(j);
+						if (cpEntry.get(0).indexOf("B")==0) {    // if black
+							if ((cpEntry.get(2).intValue()+pieceEntry.get(2).intValue
+())/2==3.5) {  // if same location from y-axis middle
+								if (reflect_or_rotate == 'reflect') {
+									if (cpEntry.get(1).intValue()==pieceEntry.get
+(1).intValue()) {   // if location is reflection
+										total_actual_symmetries_reflect++;
+										break;
+									}
+								}
+								else if (reflect_or_rotate == 'rotate') {
+									if ((cpEntry.get(1).intValue()+pieceEntry.get
+(1).intValue())/2==3.5) {   // if location is rotation
+										total_actual_symmetries_rotate++;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if (reflect_or_rotate == 'reflect') {
+				return total_actual_symmetries_reflect/total_possible_symmetries;
+			}
+			else if (reflect_or_rotate == 'rotate') {
+				return total_actual_symmetries_rotate/total_possible_symmetries;
+			}
+			else {throw new Error("Bad name")}
+		}
+	);
+};
+
+
 var TotalisticUnweightedCenter = function(dir) {
 	return CenterOfMass(
 		dir,

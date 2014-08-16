@@ -82,6 +82,8 @@ gameLooper.addCalculator(new JCalculatorPawnMovement());
 gameLooper.addCalculator(new JCalculatorMoveDistance());
 gameLooper.addCalculator(new JCalculatorBlackMoveDistance());
 gameLooper.addCalculator(new JCalculatorWhiteMoveDistance());
+gameLooper.addCalculator(Symmetry("reflect"));
+gameLooper.addCalculator(Symmetry("rotate"));
 // gameLooper.addCalculator(<calcNameHere>);
 
 

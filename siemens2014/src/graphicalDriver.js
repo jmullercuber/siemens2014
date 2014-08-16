@@ -19,7 +19,7 @@ var guiFunctionality = {
 		if (gameList.size() > 0) {
 			this.jList_GamesList.setListData(gameList.toArray());
 			currentGame = gameList.get(0);
-		 S}
+		 }
 		this.jLabelStatusBody.setText("Done parsing");
 	}
 }
@@ -27,7 +27,7 @@ var app = new JavaAdapter(graphicalLook, guiFunctionality);
 app.setVisible(true);
 
 
-jTable_Calculator
+//jTable_Calculator
 // Get access to a GameLooper
 var gameLooper = new GameLooper();
 gameLooper.addCalculator(TotalisticUnweightedCenter('x'));

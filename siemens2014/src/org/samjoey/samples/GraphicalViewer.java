@@ -364,7 +364,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     private void setViewer(int game, int ply) {
-        this.Game_Label.setText("Game: " + (game + 1));
+        this.Game_Label.setText("Game ID: " + games.get(game + 1).getId());
         this.Ply_Label.setText("Ply: " + (ply + 1));
         this.currentGame = game;
         this.currentPly = ply;

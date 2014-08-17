@@ -29,6 +29,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
+import org.samjoey.graphing.GraphUtility;
 import org.samjoey.model.Game;
 
 /**
@@ -87,69 +88,8 @@ public class PatternFinder {
 //            System.out.println(p);
 //        }
 //        System.out.println(THRESHHOLD);
-        createGraphs(games);
+        //GraphUtility.createGraphs(games);
     }
 
-    public static void createGraphs(LinkedList<Game> games) {
-        HashMap<String, XYSeriesCollection> datasets = new HashMap<>();
-        for (Game game : games) {
-            for (String key : game.getVarData().keySet()) {
-                if (datasets.containsKey(key)) {
-                    try {
-                        datasets.get(key).addSeries(createSeries(game.getVar(key), game.getId()));
-                    } catch (Exception e) {
-                    }
-                } else {
-                    datasets.put(key, new XYSeriesCollection());
-                    datasets.get(key).addSeries(createSeries(game.getVar(key), game.getId()));
-                }
-            }
-        }
-
-        for (String key : datasets.keySet()) {
-            JFrame f = new JFrame();
-            JFreeChart chart = ChartFactory.createXYLineChart(
-                    key, // chart title
-                    "X", // x axis label
-                    "Y", // y axis label
-                    datasets.get(key), // data
-                    PlotOrientation.VERTICAL,
-                    false, // include legend
-                    true, // tooltips
-                    false // urls
-                    );
-            XYPlot plot = chart.getXYPlot();
-            XYItemRenderer rend = plot.getRenderer();
-            for(int i = 0; i < games.size(); i ++){
-                Game g = games.get(i);
-                if(g.getWinner() == 1){
-                    rend.setSeriesPaint(i, Color.RED);
-                } 
-                if(g.getWinner() == 2){
-                    rend.setSeriesPaint(i, Color.BLACK);
-                } 
-                if(g.getWinner() == 0){
-                    rend.setSeriesPaint(i, Color.PINK);
-                } 
-            }
-            ChartPanel chartPanel = new ChartPanel(chart);
-            f.setContentPane(chartPanel);
-            f.pack();
-            RefineryUtilities.centerFrameOnScreen(f);
-            f.setVisible(true);
-        }
-    }
-
-    private static XYSeries createSeries(ArrayList<Double> var, int id) {
-        XYSeries series = new XYSeries(id);
-        int count = 0;
-        for (Double d : var) {
-            if (count > var.size()) {
-                break;
-            }
-            series.add(count, d);
-            count++;
-        }
-        return series;
-    }
+    
 }

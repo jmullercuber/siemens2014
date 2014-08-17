@@ -15,40 +15,41 @@
  */
 package org.samjoey.calculator;
 
+import java.util.Arrays;
 import org.samjoey.model.Board;
 
 /**
  *
  * @author Sam
  */
-public class JCalculatorMoveDistance extends JCalculator{
-    
+public class JCalculatorMoveDistance extends JCalculator {
+
     private static Board last;
 
-    public JCalculatorMoveDistance(){
+    public JCalculatorMoveDistance() {
         super("MoveDistance");
     }
-    
+
     @Override
     public Double evaluate(Board b) {
-        if(last == null){
+        if (last == null) {
             last = b;
             return 0.0;
-        } else if(b.getAll() == Board.INITIAL_BOARD){
+        } else if (Arrays.equals(b.getAll(), Board.INITIAL_BOARD)) {
             last = b;
             return 0.0;
-        } else{
+        } else {
             int x1 = -1;
             int x2 = -1;
             int y1 = -1;
             int y2 = -1;
-            for(int y = 0; y < 8; y ++){
-                for(int x = 0; x < 8; x ++){
-                    if(!last.getAll()[y][x].equals(b.getAll()[y][x])){
-                        if(x1 == -1){
+            for (int y = 0; y < 8; y++) {
+                for (int x = 0; x < 8; x++) {
+                    if (!last.getAll()[y][x].equals(b.getAll()[y][x])) {
+                        if (x1 == -1) {
                             x1 = x;
                             y1 = y;
-                        } else{
+                        } else {
                             x2 = x;
                             y2 = y;
                         }
@@ -59,5 +60,4 @@ public class JCalculatorMoveDistance extends JCalculator{
             return Math.pow(Math.pow(Math.abs(x2 - x1), 2) + Math.pow(Math.abs(y2 - y1), 2), .5);
         }
     }
-    
 }

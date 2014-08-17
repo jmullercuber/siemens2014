@@ -15,6 +15,7 @@
  */
 package org.samjoey.calculator;
 
+import java.util.Arrays;
 import org.samjoey.model.Board;
 
 /**
@@ -40,7 +41,7 @@ public class JCalculatorMoveDistanceAll extends JCalculator {
             if (last == null) {
                 last = b;
                 return 0.0;
-            } else if (b.getAll() == Board.INITIAL_BOARD) {
+            } else if (Arrays.equals(b.getAll(), Board.INITIAL_BOARD)) {
                 last = b;
                 return 0.0;
             } else {

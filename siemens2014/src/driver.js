@@ -7,6 +7,7 @@ importClass(Packages.org.samjoey.parse.Parser);
 importClass(Packages.org.samjoey.model.Game);
 importPackage(Packages.org.samjoey.calculator);
 importClass(Packages.org.samjoey.pattern.PatternFinder);
+importClass(Packages.org.samjoey.graphing.GraphUtility);
 load("org/samjoey/gameLooper/GameLooper.js");  // import straight js
 load("org/samjoey/calculator/calcDefs.js");
 
@@ -117,7 +118,7 @@ for (var i=0; i<gameList.size(); i++) {
 if (CLIArgs['graphs']) {
 	(new java.lang.Thread(
 		function() {	    // For notation check Rhino documentation. JavaScript Functions as Java Interfaces
-			PatternFinder.createGraphs(gameList);
+			GraphUtility.createGraphs(gameList);
 		}
 	)).start();
 }

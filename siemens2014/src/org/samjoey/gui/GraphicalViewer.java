@@ -13,21 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.samjoey.samples;
+package org.samjoey.gui;
 
+import java.awt.BorderLayout;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import org.jfree.chart.ChartPanel;
+import org.samjoey.graphing.GraphUtility;
 import org.samjoey.model.Game;
 
 /**
@@ -51,6 +56,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
     private LinkedList<Game> games;
     private int currentGame;
     private int currentPly;
+    private HashMap<String, ChartPanel> graphs;
 
     /**
      * Creates new form GraphicalViewer
@@ -84,12 +90,16 @@ public class GraphicalViewer extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         Variable_Viewer_Textpane = new javax.swing.JTextPane();
+        Graph_Panel = new javax.swing.JPanel();
+        Variable_Chooser = new javax.swing.JComboBox();
+        graphFrame = new javax.swing.JInternalFrame();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu_Open = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setPreferredSize(new java.awt.Dimension(20000, 20000));
 
         jPanel_Parser.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Parser", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP));
         jPanel_Parser.setName("Parser"); // NOI18N
@@ -115,7 +125,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
             jPanel_ParserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_ParserLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton_Parser_Open, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+                .addComponent(jButton_Parser_Open, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jTextField_Parser, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -188,7 +198,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jButton_Previous_Ply, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(Game_Label))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 99, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 89, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jButton_Next_Ply)
@@ -201,7 +211,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
+                .addComponent(jScrollPane2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton_PreviousGame)
@@ -237,7 +247,51 @@ public class GraphicalViewer extends javax.swing.JFrame {
             Variable_Viewer_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(Variable_Viewer_PanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 340, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        Graph_Panel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Graph Viewer", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP));
+
+        Variable_Chooser.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select Variable..." }));
+        Variable_Chooser.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Variable_ChooserActionPerformed(evt);
+            }
+        });
+
+        graphFrame.setEnabled(false);
+        graphFrame.setVisible(true);
+
+        javax.swing.GroupLayout graphFrameLayout = new javax.swing.GroupLayout(graphFrame.getContentPane());
+        graphFrame.getContentPane().setLayout(graphFrameLayout);
+        graphFrameLayout.setHorizontalGroup(
+            graphFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        graphFrameLayout.setVerticalGroup(
+            graphFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout Graph_PanelLayout = new javax.swing.GroupLayout(Graph_Panel);
+        Graph_Panel.setLayout(Graph_PanelLayout);
+        Graph_PanelLayout.setHorizontalGroup(
+            Graph_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, Graph_PanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(Graph_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(graphFrame)
+                    .addComponent(Variable_Chooser, 0, 371, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        Graph_PanelLayout.setVerticalGroup(
+            Graph_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Graph_PanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(Variable_Chooser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(graphFrame)
                 .addContainerGap())
         );
 
@@ -264,24 +318,27 @@ public class GraphicalViewer extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(Variable_Viewer_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel_Parser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(Graph_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel_Parser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(Variable_Viewer_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(92, Short.MAX_VALUE))
+                    .addComponent(Graph_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jPanel_Parser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(Variable_Viewer_Panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(33, Short.MAX_VALUE))
         );
 
         pack();
@@ -342,11 +399,22 @@ public class GraphicalViewer extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton_PreviousGameActionPerformed
 
+    private void Variable_ChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Variable_ChooserActionPerformed
+        String var = (String) this.Variable_Chooser.getSelectedItem();
+        if (graphs.containsKey(var)) {
+            graphFrame.setVisible(false);
+            graphFrame.setContentPane(graphs.get(var));
+            graphFrame.pack();
+            graphFrame.setVisible(true);
+        }
+        System.out.println("Selected");
+    }//GEN-LAST:event_Variable_ChooserActionPerformed
+
     private void selectedPGN(File file) {
         String fileLoc = file.getAbsolutePath();
         //fileLoc = "File:" + fileLoc.substring(2);
-        for(int i = 0; i < fileLoc.length(); i ++){
-            if(fileLoc.substring(i, i + 1).equals("/")){
+        for (int i = 0; i < fileLoc.length(); i++) {
+            if (fileLoc.substring(i, i + 1).equals("/")) {
                 fileLoc = fileLoc.substring(0, i) + "\\" + fileLoc.substring(i + 1);
             }
         }
@@ -388,6 +456,11 @@ public class GraphicalViewer extends javax.swing.JFrame {
         } catch (ScriptException | FileNotFoundException ex) {
             Logger.getLogger(GraphicalViewer.class.getName()).log(Level.SEVERE, null, ex);
         }
+        Set<String> keys = games.get(0).getVarData().keySet();
+        for (String key : keys) {
+            this.Variable_Chooser.addItem(key);
+        }
+        graphs = GraphUtility.getGraphs(games);
         setViewer(0, 0);
     }
 
@@ -422,9 +495,12 @@ public class GraphicalViewer extends javax.swing.JFrame {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Game_Label;
+    private javax.swing.JPanel Graph_Panel;
     private javax.swing.JLabel Ply_Label;
+    private javax.swing.JComboBox Variable_Chooser;
     private javax.swing.JPanel Variable_Viewer_Panel;
     private javax.swing.JTextPane Variable_Viewer_Textpane;
+    private javax.swing.JInternalFrame graphFrame;
     protected javax.swing.JButton jButton_Next_Game;
     protected javax.swing.JButton jButton_Next_Ply;
     private javax.swing.JButton jButton_Parser_Open;
@@ -509,10 +585,10 @@ public class GraphicalViewer extends javax.swing.JFrame {
             viewer += "<br>";
         }
         this.jTextArea_Game_Viewer.setText(viewer);
-        
+
         String variables = "";
         HashMap<String, ArrayList<Double>> vars = games.get(game).getVarData();
-        for(String key : vars.keySet()){
+        for (String key : vars.keySet()) {
             variables += key;
             variables += "= ";
             variables += ("" + vars.get(key).get(ply));

@@ -24,7 +24,7 @@ import org.samjoey.model.Board;
  */
 public class JCalculatorMoveDistance extends JCalculator {
 
-    private static Board last;
+    private Board last;
 
     public JCalculatorMoveDistance() {
         super("MoveDistance");

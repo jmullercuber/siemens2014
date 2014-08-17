@@ -47,6 +47,8 @@ public class Parser {
     private static int black;
     private static int half;
     static boolean test;
+    public static int games;
+    public static int progress;
 
     /**
      * Method for testing purposes. This will have no use in the actual program.
@@ -250,11 +252,13 @@ public class Parser {
     private static LinkedList<Game> parseGameArrays(LinkedList<String[]> separatedGames) {
         checkmates = 0;
         drawn = 0;
-        System.out.println(separatedGames.size());
+        games = separatedGames.size();
         LinkedList<Game> games = new LinkedList<>();
         int count = 0;
         int count2 = 0;
+        progress = 0;
         for (String[] strings : separatedGames) {
+            progress ++;
             count2++;
             Game game = new Game();
             game.setId(count2);

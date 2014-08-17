@@ -74,6 +74,11 @@ public class Pattern {
     }
 
     public boolean doesGameMatch(Game g, int start) {
+        for(Game game : matches){
+            if(game.getId() == g.getId()){
+                return false;
+            }
+        }
         ArrayList<Double> check = g.getVar(varType);
         for (int i = 0; i < this.definition.size() - 1; i++) {
             int j = start + i;

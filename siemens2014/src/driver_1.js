@@ -64,35 +64,45 @@ var gameList = Parser.parseGames(CLIArgs['fileLoc']);
 var gameLooper = new GameLooper();
 gameLooper.addCalculator(TotalisticUnweightedCenter('x'));
 gameLooper.addCalculator(TotalisticWeightedCenter('x'));
+gameLooper.addCalculator(TotalisticUnweightedCenter('y'));
+gameLooper.addCalculator(TotalisticWeightedCenter('u'));
 //gameLooper.addCalculator(PieceCountVars(white_or_black_or_all, weighted_or_unweighted));
 var calcType = {
     'Players': ["White", "Black", "Total"],
     'Weights': ["Weighted", "Unweighted"]
 };
 for (i in calcType['Players']) {
-    gameLooper.addCalculator(AveragePieceValue(calcType['Players'][i]));
+    //gameLooper.addCalculator(AveragePieceValue(calcType['Players'][i]));
     for (j in calcType['Weights']) {
-        gameLooper.addCalculator(PieceCountVars(calcType['Players'][i], calcType['Weights'][j]));
+        //gameLooper.addCalculator(PieceCountVars(calcType['Players'][i], calcType['Weights'][j]));
     }
 }
-gameLooper.addCalculator(new JCalculatorChecks("Black"));
-gameLooper.addCalculator(new JCalculatorChecks("White"));
-gameLooper.addCalculator(new JCalculatorMoveTime(""));
-gameLooper.addCalculator(new JCalculatorMoveTime("White"));
-gameLooper.addCalculator(new JCalculatorMoveTime("Black"));
-gameLooper.addCalculator(new JCalculatorPawnMovement());
+//gameLooper.addCalculator(new JCalculatorChecks("Black"));
+//gameLooper.addCalculator(new JCalculatorChecks("White"));
+//gameLooper.addCalculator(new JCalculatorMoveTime(""));
+//gameLooper.addCalculator(new JCalculatorMoveTime("White"));
+//gameLooper.addCalculator(new JCalculatorMoveTime("Black"));
+//gameLooper.addCalculator(new JCalculatorPawnMovement());
 //gameLooper.addCalculator(new JCalculatorMoveDistance(""));
 //gameLooper.addCalculator(new JCalculatorMoveDistance("Black"));
 //gameLooper.addCalculator(new JCalculatorMoveDistance("White"));
 gameLooper.addCalculator(new JCalculatorMoveDistance());
 gameLooper.addCalculator(new JCalculatorWhiteMoveDistance());
 gameLooper.addCalculator(new JCalculatorBlackMoveDistance());
-gameLooper.addCalculator(Symmetry("reflect"));
-gameLooper.addCalculator(Symmetry("rotate"));
+//gameLooper.addCalculator(Symmetry("reflect"));
+//gameLooper.addCalculator(Symmetry("rotate"));
+//gameLooper.addCalculator(new JCalculatorAverageChange(new JCalculatorMoveDistance()));
+//gameLooper.addCalculator(new JCalculatorAverageChange(new JCalculatorBlackMoveDistance()));
+//gameLooper.addCalculator(new JCalculatorAverageChange(new JCalculatorWhiteMoveDistance()));
+//gameLooper.addCalculator(new JCalculatorAverageChange(new JCalculatorMoveTime("")));
+//gameLooper.addCalculator(new JCalculatorAverageChange(new JCalculatorMoveTime("White")));
+//gameLooper.addCalculator(new JCalculatorAverageChange(new JCalculatorMoveTime("Black")));
+//gameLooper.addCalculator(new JCalculatorAverageChange(new JCalculatorPawnMovement()));
 // gameLooper.addCalculator(<calcNameHere>);
 
 
 // For every game...
+engine.put("size", "" + (gameList.size() - 1));
 for (var i = 0; i < gameList.size(); i++) {
     // save to a variable
     var currentGame = gameList.get(i);
@@ -112,7 +122,7 @@ for (var i = 0; i < gameList.size(); i++) {
 
     // prepare to move on to the next
     gameLooper.close();
-
+    engine.put("progress", "" + i);
 }
 
 // Do the graphical stuff in a new thread

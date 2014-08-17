@@ -21,19 +21,22 @@ import org.samjoey.model.Board;
  *
  * @author Sam
  */
-public class JCalculatorChecks extends JCalculator{
+public class JCalculatorChecks extends JCalculator {
+
     int player;
-    public JCalculatorChecks(String white_or_black){
+
+    public JCalculatorChecks(String white_or_black) {
         super(white_or_black + "Checks");
-        player = (white_or_black.equals("Black")?1:2);
+        player = (white_or_black.equals("Black") ? 1 : 2);
     }
-    
+
     @Override
     public Double evaluate(Board b) {
-        if(b.getPlayer() == this.player){
-            if(b.isOpponentInCheck()) return 1.0;
+        if (b.getPlayer() == this.player) {
+            if (b.isOpponentInCheck()) {
+                return 1.0;
+            }
         }
         return 0.0;
     }
-    
 }

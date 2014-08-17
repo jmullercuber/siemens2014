@@ -16,17 +16,19 @@
 package org.samjoey.samples;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.FileNotFoundException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.samjoey.model.Game;
-import org.samjoey.parse.Parser;
 
 /**
  *
@@ -78,6 +80,10 @@ public class GraphicalViewer extends javax.swing.JFrame {
         jTextArea_Game_Viewer = new javax.swing.JTextPane();
         Ply_Label = new javax.swing.JLabel();
         Game_Label = new javax.swing.JLabel();
+        Variable_Viewer_Panel = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        Variable_Viewer_Textpane = new javax.swing.JTextPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu_Open = new javax.swing.JMenuItem();
@@ -109,7 +115,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
             jPanel_ParserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel_ParserLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton_Parser_Open, javax.swing.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE)
+                .addComponent(jButton_Parser_Open, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jTextField_Parser, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -209,6 +215,32 @@ public class GraphicalViewer extends javax.swing.JFrame {
                 .addGap(6, 6, 6))
         );
 
+        Variable_Viewer_Panel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEtchedBorder(), "Variable View", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP));
+
+        jScrollPane3.setMaximumSize(new java.awt.Dimension(75, 100));
+
+        Variable_Viewer_Textpane.setEnabled(false);
+        jScrollPane1.setViewportView(Variable_Viewer_Textpane);
+
+        jScrollPane3.setViewportView(jScrollPane1);
+
+        javax.swing.GroupLayout Variable_Viewer_PanelLayout = new javax.swing.GroupLayout(Variable_Viewer_Panel);
+        Variable_Viewer_Panel.setLayout(Variable_Viewer_PanelLayout);
+        Variable_Viewer_PanelLayout.setHorizontalGroup(
+            Variable_Viewer_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Variable_Viewer_PanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        Variable_Viewer_PanelLayout.setVerticalGroup(
+            Variable_Viewer_PanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(Variable_Viewer_PanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
         jMenu1.setText("File");
 
         jMenu_Open.setText("Open");
@@ -232,7 +264,9 @@ public class GraphicalViewer extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
-                .addComponent(jPanel_Parser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(Variable_Viewer_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel_Parser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -241,8 +275,11 @@ public class GraphicalViewer extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel_Parser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel_Parser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(Variable_Viewer_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(92, Short.MAX_VALUE))
         );
@@ -272,6 +309,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
             //This is where a real application would open the file.
             this.jTextField_Parser.setText(file.getName());
             (new Thread() {
+                @Override
                 public void run() {
                     selectedPGN(file);
                 }
@@ -281,7 +319,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton_Parser_OpenActionPerformed
 
     private void jButton_Next_GameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_Next_GameActionPerformed
-        if (currentGame < games.size()) {
+        if (currentGame < games.size() - 1) {
             this.setViewer(currentGame + 1, 0);
         }
     }//GEN-LAST:event_jButton_Next_GameActionPerformed
@@ -305,12 +343,50 @@ public class GraphicalViewer extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton_PreviousGameActionPerformed
 
     private void selectedPGN(File file) {
-        String fileLoc = "";
+        String fileLoc = file.getAbsolutePath();
+        //fileLoc = "File:" + fileLoc.substring(2);
+        for(int i = 0; i < fileLoc.length(); i ++){
+            if(fileLoc.substring(i, i + 1).equals("/")){
+                fileLoc = fileLoc.substring(0, i) + "\\" + fileLoc.substring(i + 1);
+            }
+        }
         try {
-            fileLoc = file.getCanonicalPath();
-            games = Parser.parseGames(fileLoc);
-        } catch (IOException ex) {
-            System.out.println("IO");
+            ScriptEngineManager factory = new ScriptEngineManager();
+            // create JavaScript engine
+            ScriptEngine engine = factory.getEngineByName("JavaScript");
+            // evaluate JavaScript code from given file - specified by first argument
+            engine.put("engine", engine);
+            ClassLoader cl = GraphicalViewer.class.getClassLoader();
+            URL url = cl.getResource("\\org\\samjoey\\gameLooper\\GameLooper_1.js");
+            String loopLoc = url.toString().substring(5);
+            for (int i = 0; i < loopLoc.length() - 3; i++) {
+                if (loopLoc.substring(i, i + 3).equals("%5c")) {
+                    loopLoc = loopLoc.substring(0, i) + "/" + loopLoc.substring(i + 3);
+                }
+            }
+            engine.put("loopLoc", loopLoc);
+            url = cl.getResource("\\org\\samjoey\\calculator\\calcDefs_1.js");
+            String defsLoc = url.toString().substring(5);
+            for (int i = 0; i < defsLoc.length() - 3; i++) {
+                if (defsLoc.substring(i, i + 3).equals("%5c")) {
+                    defsLoc = defsLoc.substring(0, i) + "/" + defsLoc.substring(i + 3);
+                }
+            }
+            engine.put("defsLoc", defsLoc);
+            url = cl.getResource("\\org\\samjoey\\calculator\\Calculator.js");
+            String calcLoc = url.toString().substring(5);
+            for (int i = 0; i < calcLoc.length() - 3; i++) {
+                if (calcLoc.substring(i, i + 3).equals("%5c")) {
+                    calcLoc = calcLoc.substring(0, i) + "/" + calcLoc.substring(i + 3);
+                }
+            }
+            engine.put("calcLoc", calcLoc);
+            String args[] = {"-g:false", fileLoc};
+            engine.put("arguments", args);
+            engine.eval(new java.io.FileReader(GraphicalViewer.class.getClassLoader().getResource("driver_1.js").toString().substring(5)));
+            games = (LinkedList<Game>) engine.get("gameList");
+        } catch (ScriptException | FileNotFoundException ex) {
+            Logger.getLogger(GraphicalViewer.class.getName()).log(Level.SEVERE, null, ex);
         }
         setViewer(0, 0);
     }
@@ -347,6 +423,8 @@ public class GraphicalViewer extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Game_Label;
     private javax.swing.JLabel Ply_Label;
+    private javax.swing.JPanel Variable_Viewer_Panel;
+    private javax.swing.JTextPane Variable_Viewer_Textpane;
     protected javax.swing.JButton jButton_Next_Game;
     protected javax.swing.JButton jButton_Next_Ply;
     private javax.swing.JButton jButton_Parser_Open;
@@ -358,13 +436,15 @@ public class GraphicalViewer extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenu_Open;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel_Parser;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextPane jTextArea_Game_Viewer;
     private javax.swing.JTextField jTextField_Parser;
     // End of variables declaration//GEN-END:variables
 
     private void setViewer(int game, int ply) {
-        this.Game_Label.setText("Game ID: " + games.get(game + 1).getId());
+        this.Game_Label.setText("Game ID: " + games.get(game).getId());
         this.Ply_Label.setText("Ply: " + (ply + 1));
         this.currentGame = game;
         this.currentPly = ply;
@@ -429,5 +509,15 @@ public class GraphicalViewer extends javax.swing.JFrame {
             viewer += "<br>";
         }
         this.jTextArea_Game_Viewer.setText(viewer);
+        
+        String variables = "";
+        HashMap<String, ArrayList<Double>> vars = games.get(game).getVarData();
+        for(String key : vars.keySet()){
+            variables += key;
+            variables += "= ";
+            variables += ("" + vars.get(key).get(ply));
+            variables += "\n";
+        }
+        this.Variable_Viewer_Textpane.setText(variables);
     }
 }

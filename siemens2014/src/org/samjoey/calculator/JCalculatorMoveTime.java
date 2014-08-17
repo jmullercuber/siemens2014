@@ -22,13 +22,23 @@ import org.samjoey.model.Board;
  * @author Sam
  */
 public class JCalculatorMoveTime extends JCalculator{
-    public JCalculatorMoveTime(){
-        super("MoveTime");
+    
+    int player;
+    
+    public JCalculatorMoveTime(String white_or_black_or_all){
+        super(white_or_black_or_all + "MoveTime");
+        player = (white_or_black_or_all.equals("White")?
+                        1:
+                        white_or_black_or_all.equals("Black")?
+                            2:0);
     }
     
     @Override
     public Double evaluate(Board b) {
-        return b.getTime();
+        if (b.getPlayer() == player || player == 0) {
+            return b.getTime();
+        }
+        return 0.0;
     }
     
 }

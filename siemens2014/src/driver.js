@@ -72,18 +72,21 @@ for (i in calcType['Players']) {
 	for (j in calcType['Weights']) {
 		gameLooper.addCalculator(PieceCountVars(calcType['Players'][i], calcType['Weights'][j]));
 	}
-}
-gameLooper.addCalculator(new JCalculatorWhiteChecks());
-gameLooper.addCalculator(new JCalculatorBlackChecks());
-gameLooper.addCalculator(new JCalculatorMoveTime());
-gameLooper.addCalculator(new JCalculatorWhiteMoveTime());
-gameLooper.addCalculator(new JCalculatorBlackMoveTime());
+}*/
+gameLooper.addCalculator(new JCalculatorChecks("Black"));
+gameLooper.addCalculator(new JCalculatorChecks("White"));
+gameLooper.addCalculator(new JCalculatorMoveTime(""));
+gameLooper.addCalculator(new JCalculatorMoveTime("White"));
+gameLooper.addCalculator(new JCalculatorMoveTime("Black"));
 gameLooper.addCalculator(new JCalculatorPawnMovement());
+//gameLooper.addCalculator(new JCalculatorMoveDistance(""));
+//gameLooper.addCalculator(new JCalculatorMoveDistance("Black"));
+//gameLooper.addCalculator(new JCalculatorMoveDistance("White"));
 gameLooper.addCalculator(new JCalculatorMoveDistance());
+gameLooper.addCalculator(new JCalculatorWhiteMoveDistance());
 gameLooper.addCalculator(new JCalculatorBlackMoveDistance());
-gameLooper.addCalculator(new JCalculatorWhiteMoveDistance());*/
-gameLooper.addCalculator(Symmetry("reflect"));
-gameLooper.addCalculator(Symmetry("rotate"));
+//gameLooper.addCalculator(Symmetry("reflect"));
+//gameLooper.addCalculator(Symmetry("rotate"));
 // gameLooper.addCalculator(<calcNameHere>);
 
 

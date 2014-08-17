@@ -30,4 +30,8 @@ public abstract class JCalculator {
     public JCalculator(String name) {
         this.name = name;
     }
+    
+    public void reset() {
+        // By default, do nothing
+    }
 }

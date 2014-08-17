@@ -30,6 +30,9 @@ function GameLooper(initialGame, calcList) {
 			throw new Error("GameLooper - AlreadyInUse");
 		}
 		this.currentGame = game;
+		for (var i in this.calcs) {
+			this.calcs[i].reset();
+		}
 	}
 
 	// Close the currentGame so another Game can be used
@@ -47,6 +50,7 @@ function GameLooper(initialGame, calcList) {
 			// not a real Calculator
 			throw new TypeError("GameLooper - NotABonafideCalc");
 		}
+		oneCalc.reset();
 		this.calcs.push(oneCalc);
 	}
 	

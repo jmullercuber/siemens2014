@@ -376,38 +376,49 @@ public class GraphicalViewer extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton_Parser_OpenActionPerformed
 
     private void jButton_Next_GameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_Next_GameActionPerformed
-        if (currentGame < games.size() - 1) {
-            this.setViewer(currentGame + 1, 0);
+        try {
+            if (currentGame < games.size() - 1) {
+                this.setViewer(currentGame + 1, 0);
+            }
+        } catch (NullPointerException npe) {
         }
     }//GEN-LAST:event_jButton_Next_GameActionPerformed
 
     private void jButton_Previous_PlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_Previous_PlyActionPerformed
-        if (currentPly > 0) {
-            this.setViewer(currentGame, currentPly - 1);
+        try {
+            if (currentPly > 0) {
+                this.setViewer(currentGame, currentPly - 1);
+            }
+        } catch (NullPointerException npe) {
         }
     }//GEN-LAST:event_jButton_Previous_PlyActionPerformed
 
     private void jButton_Next_PlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_Next_PlyActionPerformed
-        if (currentPly < games.get(currentGame).getPlyCount()) {
-            this.setViewer(currentGame, currentPly + 1);
+        try {
+            if (currentPly < games.get(currentGame).getPlyCount()) {
+                this.setViewer(currentGame, currentPly + 1);
+            }
+        } catch (NullPointerException npe) {
         }
     }//GEN-LAST:event_jButton_Next_PlyActionPerformed
 
     private void jButton_PreviousGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_PreviousGameActionPerformed
-        if (currentGame > 0) {
-            this.setViewer(currentGame - 1, 0);
+        try {
+            if (currentGame > 0) {
+                this.setViewer(currentGame - 1, 0);
+            }
+        } catch (NullPointerException npe) {
         }
     }//GEN-LAST:event_jButton_PreviousGameActionPerformed
 
     private void Variable_ChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Variable_ChooserActionPerformed
         String var = (String) this.Variable_Chooser.getSelectedItem();
-        if (graphs.containsKey(var)) {
+        if (var != null && graphs.containsKey(var)) {
             graphFrame.setVisible(false);
             graphFrame.setContentPane(graphs.get(var));
             graphFrame.pack();
             graphFrame.setVisible(true);
         }
-        System.out.println("Selected");
     }//GEN-LAST:event_Variable_ChooserActionPerformed
 
     private void selectedPGN(File file) {

@@ -98,7 +98,7 @@ public class PatternFinder {
         boolean repeat = false;
         for (String key : pats.keySet()) {
             ArrayList<Pattern> ps = pats.get(key);
-            if (ps.size() < 5 && threshholds.get(key) > .05) {
+            if (ps.size() < 5 && threshholds.get(key) > .0) {
                 threshholds.put(key, threshholds.get(key) - .01);
                 repeat = true;
             } else {

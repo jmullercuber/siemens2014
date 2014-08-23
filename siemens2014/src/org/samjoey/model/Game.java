@@ -44,8 +44,37 @@ public class Game {
         vars = new HashMap<>();
     }
 
+    @Override
+    public String toString() {
+        String ret = "";
+        ret += "[GameID \"" + id + "\"]\n";
+        ret += "[WinType \"" + winType + "\"]\n";
+        ret += "[Winner \"" + winner + "\"]\n";
+        ret += "[WhiteTime \"" + whiteTime + "\"]\n";
+        ret += "[BlackTime \"" + blackTime + "\"]\n";
+        ret += "[TimeAllowed \"" + timeAllowedPerPlayer + "\"]\n";
+        ret += "[PlyCount \"" + plyCount + "\"]\n";
+        for (String key : this.getVarData().keySet()) {
+            ret += "[" + key + " [";
+            for (Double d : this.getVar(key)) {
+                ret += d + ",";
+            }
+            ret = ret.substring(0, ret.length() - 1);
+            ret += "] ]\n";
+        }
+        ret += "[Moves [";
+        for (Board b : turns) {
+            if (b.getMove() != null) {
+                ret += b.getMove() + " ";
+            }
+        }
+        ret += "]";
+        return ret;
+    }
+
     /**
      * Initializes the iterator if it needs to and gets the next board.
+     *
      * @return the next board in the game.
      */
     public Board next() {
@@ -79,14 +108,14 @@ public class Game {
             vars.get(name).add(value);
         }
     }
-    
+
     //Get all boards for this game
-    public ArrayList<Board> getAllBoards(){
+    public ArrayList<Board> getAllBoards() {
         return this.turns;
     }
-    
+
     //Add a board to this game
-    public void addBoard(Board b){
+    public void addBoard(Board b) {
         this.turns.add(b);
     }
 

@@ -17,201 +17,49 @@ package org.samjoey.parse;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.samjoey.model.Board;
 import org.samjoey.model.Game;
+import static org.samjoey.parse.Parser.enpassantCount;
 
 /**
  *
  * @author Sam
  */
-public class Parser {
+public class JSCAParser {
 
-    private static boolean print;
-    static boolean print2;
-    static boolean print3;
-    static boolean print4;
-    static int enpassantCount;
-    private static int noRookCount;
-    private static int n;
-    private static int checkmates;
-    private static int drawn;
-    private static int white;
-    private static int black;
-    private static int half;
-    static boolean test;
-    public static int numGames;
-    public static int progress;
-    static int count = 0;
-    static int count2 = 0;
+    private final LinkedList<String[]> sepGames;
+    private HashMap<Integer, String[]> mappedByID;
 
-    /**
-     * Method for testing purposes. This will have no use in the actual program.
-     */
-    public static void main(String[] args) {
-        print = false;
-        print2 = false;
-        print3 = true;
-        print4 = false;
-        n = 173;
-        enpassantCount = 0;
-        n--;
-        noRookCount = 0;
+    public JSCAParser(String fileLoc) {
+        mappedByID = new HashMap<>();
+        File file = new File(fileLoc);
+        BufferedReader reader = null;
         try {
-            LinkedList<Game> games;
-            //JOEY: you will need to change this in order to test.
-            String fileLocation = "File:/Users/Sam/Documents/ficsgamesdb_201401_chess2000_movetimes_1118415.pgn";
-            System.out.println(System.nanoTime());
-            games = parseGames(fileLocation);
-            System.out.println(System.nanoTime());
-            //Print out a random game
-            if (print2) {
-                int get = (int) (Math.random() * games.size());
-
-                Game game = games.get(get);
-                ArrayList<Board> boards = game.getAllBoards();
-
-                for (Board board : boards) {
-                    System.out.println("   |A  |B  |C  |D  |E  |F  |G  |H");
-                    for (int p = 7; p >= 0; p--) {
-                        String[] y = board.getAll()[p];
-                        System.out.print((p + 1) + ": |");
-                        for (String x : y) {
-                            if (!"".equals(x)) {
-                                System.out.print(x + " |");
-                            } else {
-                                System.out.print("   |");
-                            }
-                        }
-                        System.out.println();
-                        System.out.println("-------------------------------------");
-                    }
-                    System.out.println("//");
-                }
-                System.out.println(get);
-                System.out.println(game.getWinner());
-                System.out.println(game.getPlyCount());
-            }
-            if (print3) {
-                System.out.println(enpassantCount);
-                ArrayList<Game> good = new ArrayList<>();
-                ArrayList<Game> bad = new ArrayList<>();
-                while (true) {
-                    int get = (int) (Math.random() * games.size());
-                    Game game = games.get(get);
-                    if (game.getWinType() != null && (game.getWinType().equals("Checkmated") || game.getWinType().equals("Draw"))) {
-                        //if (game.getWinType() != null && (game.getWinType().equals("Draw"))) {
-                        Board board = game.getAllBoards().get(game.getAllBoards().size() - 1);
-                        System.out.println("   |A  |B  |C  |D  |E  |F  |G  |H");
-                        for (int p = 7; p >= 0; p--) {
-                            String[] y = board.getAll()[p];
-                            System.out.print((p + 1) + ": |");
-                            for (String x : y) {
-                                if (!"".equals(x)) {
-                                    System.out.print(x + " |");
-                                } else {
-                                    System.out.print("   |");
-                                }
-                            }
-                            System.out.println();
-                            System.out.println("-------------------------------------");
-                        }
-
-                        System.out.println(game.getId());
-
-                        Scanner s = new Scanner(System.in);
-                        while (!s.hasNext()) {
-                        }
-                        String in = s.next();
-                        if (in.contains("G")) {
-                            good.add(game);
-                        }
-                        if (in.contains("B")) {
-                            bad.add(game);
-                        }
-                        if (in.contains("-")) {
-                            break;
-                        }
-                    }
-                }
-                System.out.println("GOOD: " + good.size());
-                for (Game g : good) {
-                    System.out.println(g.getId() + 1);
-                }
-                System.out.println("BAD: " + bad.size());
-                for (Game g : bad) {
-                    System.out.println(g.getId() + 1);
-                }
-            }
-            if (print4) {
-                Game game = games.get(n);
-                int count = 0;
-                for (Board board : game.getAllBoards()) {
-                    count++;
-                    System.out.println(count);
-                    System.out.println("   |A  |B  |C  |D  |E  |F  |G  |H");
-                    for (int p = 7; p >= 0; p--) {
-                        String[] y = board.getAll()[p];
-                        System.out.print((p + 1) + ": |");
-                        for (String x : y) {
-                            if (!"".equals(x)) {
-                                System.out.print(x + " |");
-                            } else {
-                                System.out.print("   |");
-                            }
-                        }
-                        System.out.println();
-                        System.out.println("-------------------------------------");
-                    }
-                    System.out.println("//");
-                }
-
-            }
-
-        } catch (IOException ex) {
-            System.out.println("ex");
+            reader = new BufferedReader(new FileReader(file));
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(JSCAParser.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    /**
-     * A method to initiate the parser. Takes a file location and retrieves the
-     * file to parse and parses it.
-     *
-     * @param fileLocation the location of the pgn file to parse.
-     * @return a list of numGames parsed from the file at fileLocation.
-     * @throws URISyntaxException the location format is not valid.
-     * @throws IOException there was an issue reading the file.
-     */
-    public static LinkedList<Game> parseGames(String fileLocation) throws IOException {
-        File file = new File(fileLocation);
-        return parseGames(file);
-    }
-
-    /**
-     * Internal method called by parseGames(String fileLocation) after a file
-     * has been created.
-     *
-     * @param file the file to parse from.
-     * @returna list of numGames parsed from the file file.
-     * @throws IOException
-     */
-    private static LinkedList<Game> parseGames(File file) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(file));
         LinkedList<String> lines = new LinkedList<>();
         String line;
-        //Read the input into a linked list.
-        while ((line = reader.readLine()) != null) {
-            lines.add(line);
+        try {
+            //Read the input into a linked list.
+            while ((line = reader.readLine()) != null) {
+                lines.add(line);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(JSCAParser.class.getName()).log(Level.SEVERE, null, ex);
         }
-        LinkedList<String[]> separatedGames = separateGameStrings(lines);
-        return parseGameArrays(separatedGames);
+        sepGames = separateGameStrings(lines);
+        mapByID();
     }
 
     /**
@@ -223,125 +71,105 @@ public class Parser {
      * @return
      */
     private static LinkedList<String[]> separateGameStrings(LinkedList<String> lines) {
-        String[] gameStrings = new String[20];
+        String[] gameStrings = new String[60];
         LinkedList<String[]> separatedGameStrings = new LinkedList<>();
         int last = 0;
         for (String s : lines) {
-            if (s.equals("") || s.substring(0, 1).equals("[")) {
-                //System.out.println("1: " + s);
-                gameStrings[last] = s;
-                last++;
-            } else {
+            if (s.contains("Moves")) {
                 gameStrings[last] = s;
                 separatedGameStrings.add(gameStrings.clone());
-                for (int i = 0; i < 20; i++) {
+                for (int i = 0; i < 60; i++) {
                     gameStrings[i] = "";
                 }
                 last = 0;
+                continue;
+            } else if (s.equals("") || s.substring(0, 1).equals("[")) {
+                gameStrings[last] = s;
+                last++;
             }
         }
 
         return separatedGameStrings;
     }
 
-    /**
-     * Parses arrays of strings into a game. Each array describes a game from
-     * the pgn. This is an internal method.
-     *
-     * @param separatedGames from separateGameStrings(LinkedList<String> lines).
-     * @return
-     */
-    private static LinkedList<Game> parseGameArrays(final LinkedList<String[]> separatedGames) {
-        checkmates = 0;
-        drawn = 0;
-        numGames = separatedGames.size();
-        int numExpected = 0;
-        for (String[] ss : separatedGames) {
-            for (String s : ss) {
-                if (s != null && (s.contains("drawn") || s.contains("checkmated"))) {
-                    numExpected++;
+    public Game get(int g) {
+        if (!mappedByID.containsKey(g)) {
+            return null;
+        }
+        Game game = new Game();
+        game.setId(g);
+        String[] strings = mappedByID.get(g);
+        for (String s : strings) {
+
+            if (s != null) {
+                //Get how much time is allotted to each player
+                if (s.contains("ID")) {
+                    continue;
+                }
+                if (s.contains("WhiteTime")) {
+                    continue;
+                }
+                if (s.contains("BlackTime")) {
+                    continue;
+                }
+                if (s.contains("TimeAllowed")) {
+                    game.setTimeAllowedPerPlayer(Integer.parseInt(s.substring(14, s.indexOf("\"", 14))));
+                    continue;
+                }
+                //Get how many half moves were played in the game
+                if (s.contains("PlyCount")) {
+                    game.setPlyCount(Integer.parseInt(s.substring(s.indexOf("\"") + 1, s.indexOf("\"", s.indexOf("\"") + 1))));
+                    continue;
+                }
+                //Determine the result of the game
+                if (s.contains("Winner")) {
+                    if (s.contains("1")) {
+                        game.setWinner(1);
+                    }
+                    if (s.contains("2")) {
+                        game.setWinner(2);
+                    }
+                    if (s.contains("0")) {
+                        game.setWinner(0);
+                    }
+                    continue;
+                }
+                if (s.contains("WinType")) {
+                    //TO-DO
+                    continue;
+                }
+                //Parse the actual moves
+                if (s.startsWith("[Moves [")) {
+                    //Parse boards from the string of moves.
+
+                    LinkedList<Board> boards = parseBoards(s, game);
+                    //Add the boards individually to the game
+                    for (Board b : boards) {
+                        game.addBoard(b);
+                    }
+                    continue;
+                }
+                if (s.contains("[")) {
+                    String str = s.substring(s.indexOf("[", 2) + 1, s.indexOf("]"));
+                    String[] nums = str.split(",");
+                    for (String num : nums) {
+                        game.addVariable(s.substring(1, s.indexOf(" [", 1)), Double.parseDouble(num));
+                    }
                 }
             }
         }
-        final LinkedList<Game> games = new LinkedList<>();
-        progress = 0;
-        for (int j = 0; j < separatedGames.size(); j++) {
-            final String[] strings = separatedGames.get(j);
-            count2 = j;
-            Thread thread = new Thread() {
-                @Override
-                public void run() {
+        return game;
+    }
 
-                    Game game = new Game();
-                    game.setId(separatedGames.indexOf(strings) + 1);
-                    for (String s : strings) {
-
-                        if (s != null) {
-                            //Get how much time is allotted to each player
-                            if (s.contains("TimeControl")) {
-                                game.setTimeAllowedPerPlayer(Integer.parseInt(s.substring(s.indexOf("\"") + 1, s.indexOf("+"))));
-                            }
-                            //Get how many half moves were played in the game
-                            if (s.contains("PlyCount")) {
-                                game.setPlyCount(Integer.parseInt(s.substring(s.indexOf("\"") + 1, s.indexOf("\"", s.indexOf("\"") + 1))));
-                            }
-                            //Determine the result of the game
-                            if (s.contains("Result")) {
-                                if (s.contains("1-0")) {
-                                    game.setWinner(1);
-                                    white++;
-                                }
-                                if (s.contains("0-1")) {
-                                    game.setWinner(2);
-                                    black++;
-                                }
-                                if (s.contains("1/2-1/2")) {
-                                    game.setWinner(0);
-                                    half++;
-                                }
-                            }
-                            if (s.contains("checkmated")) {
-                                game.setWinType("Checkmated");
-                                Parser.checkmates++;
-                            } else if (s.contains("resigns")) {
-                                game.setWinType("Resignation");
-                            } else if (s.contains("drawn")) {
-                                game.setWinType("Draw");
-                                Parser.drawn++;
-                            }
-                            //Parse the actual moves
-                            if (s.startsWith("1")) {
-                                //Parse boards from the string of moves.
-
-                                LinkedList<Board> boards = parseBoards(s, game);
-                                //Add the boards individually to the game
-                                for (Board b : boards) {
-                                    game.addBoard(b);
-                                }
-
-                            }
-                        }
-                    }
-                    //Add the game to the list of numGames
-                    if (game.getWinType() != null && (game.getWinType().equals("Draw") || game.getWinType().equals("Checkmated"))) {
-                        count++;
-                        int c = 0;
-                        games.add(c, game);
-                    }
-                    progress++;
+    private void mapByID() {
+        for (String[] games : this.sepGames) {
+            for (String s : games) {
+                if (s != null && s.contains("GameID")) {
+                    int id = Integer.parseInt(s.substring(s.indexOf("\"") + 1, s.indexOf("\"", s.indexOf("\"") + 1)));
+                    mappedByID.put(id, games);
                 }
-            };
-            thread.start();
-            //To limit the number of numGames
-//            if (count == 15000) {
-//                break;
-//            }
+            }
         }
-        while (games.size() < numExpected - 10) {
-            System.out.println(games.size() + ":" + numExpected);
-        }
-        System.out.println("Done Parsing. Size: " + games.size() + " Expected: " + numExpected);
-        return games;
     }
 
     /**
@@ -352,6 +180,7 @@ public class Parser {
      * @return
      */
     private static LinkedList<Board> parseBoards(String s, Game game) {
+        s = s.substring(s.indexOf(" ") + 2, s.length() - 2);
         LinkedList<Double> times = new LinkedList<>();
         //Remove time markers
         while (true) {
@@ -365,21 +194,7 @@ public class Parser {
             Double t = Double.parseDouble(time.substring(time.indexOf(" ", 1) + 1, time.indexOf("]")));
             times.add(t);
         }
-        //Variables to represent each player's timess
-        Double whiteTime = new Double(0);
-        Double blackTime = new Double(0);
-        //Add up the times
-        for (int i = 0; i < game.getPlyCount(); i++) {
-            Double time = times.get(i);
-            if (i % 2 == 0) {
-                whiteTime = whiteTime + time;
-            } else {
-                blackTime = blackTime + time;
-            }
-        }
-        //Set the times
-        game.setBlackTime(blackTime);
-        game.setWhiteTime(whiteTime);
+
         //Separate the string into separate moves
         LinkedList<String> moves = createMoves(s);//
         //The number of plies should equal the number of moves. Report if this is not true. (Note: has not been reported after numerous tests.)
@@ -408,13 +223,8 @@ public class Parser {
 
             now.setMove(orig);
 
-            //For debugging purposes, print information if print is true
-            if (print) {
-                System.out.println(orig);
-                System.out.println(now.getPlayer());
-            }
             //Set the time for the move
-            now.setTime(times.get(i) / game.getTimeAllowedPerPlayer());
+            //now.setTime(times.get(i) / game.getTimeAllowedPerPlayer());
             //Check for special cases in the move
             String special = checkForSpecialMoves(str);
             //Check what piece this move moves.
@@ -516,9 +326,6 @@ public class Parser {
                                 old[rank][file] = "WP";
                                 old[rank - 1][file + 1] = "";
                             } else {
-                                if (print) {
-                                    System.out.println("ERROR: NO PAWN FOUND, P1");
-                                }
                             }
                         } else {
                             String p1 = "";
@@ -542,9 +349,6 @@ public class Parser {
                                 old[rank][file] = "BP";
                                 old[rank + 1][file + 1] = "";
                             } else {
-                                if (print) {
-                                    System.out.println("ERROR: NO PAWN FOUND, P2");
-                                }
                             }
                         }
                     } else {
@@ -812,7 +616,6 @@ public class Parser {
                             }
                         }
                         if (rs.isEmpty()) {
-                            noRookCount++;
                         } else if (rs.size() == 1) { //If there is only one, move it
                             old[rs.get(0)[0]][rs.get(0)[1]] = "";
                             old[rank][file] = "WR";
@@ -968,7 +771,6 @@ public class Parser {
                             }
                         }
                         if (rs.isEmpty()) {
-                            noRookCount++;
                         } else if (rs.size() == 1) {
                             old[rs.get(0)[0]][rs.get(0)[1]] = "";
                             old[rank][file] = "BR";
@@ -1285,29 +1087,7 @@ public class Parser {
             last.setPositions(now.getAll().clone());
             last.setTime(now.getTime());
             last.setOpponentInCheck(now.isOpponentInCheck());
-            if (print) {
-                System.out.println("   |A  |B  |C  |D  |E  |F  |G  |H");
-                for (int p = 7; p >= 0; p--) {
-                    String[] y = now.getAll()[p];
-                    System.out.print((p + 1) + ": |");
-                    for (String x : y) {
-                        if (!"".equals(x)) {
-                            System.out.print(x + " |");
-                        } else {
-                            System.out.print("   |");
-                        }
-                    }
-                    System.out.println();
-                    System.out.println("-------------------------------------");
-                }
-                System.out.println("//");
-            }
         }
-        if (print) {
-            System.out.println();
-            System.out.println();
-        }
-        print = false;
         return boards;
     }
 

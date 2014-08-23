@@ -95,7 +95,11 @@ public class GraphUtility {
 
     public static HashMap<String, ChartPanel> getGraphs(LinkedList<Game> games) {
         HashMap<String, XYSeriesCollection> datasets = new HashMap<>();
-        for (Game game : games) {
+        for (int j = 0; j < games.size(); j++) {
+            Game game = games.get(j);
+            if (game == null) {
+                continue;
+            }
             for (String key : game.getVarData().keySet()) {
                 if (datasets.containsKey(key)) {
                     try {

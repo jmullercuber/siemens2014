@@ -15,9 +15,11 @@
  */
 package org.samjoey.gui;
 
-import java.awt.BorderLayout;
+import static java.awt.event.InputEvent.CTRL_DOWN_MASK;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,12 +31,13 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.jfree.chart.ChartPanel;
 import org.samjoey.graphing.GraphUtility;
 import org.samjoey.model.Game;
-import org.samjoey.parse.Parser;
+import org.samjoey.parse.JSCAParser;
 import org.samjoey.pattern.PatternFinder;
 
 /**
@@ -60,6 +63,9 @@ public class GraphicalViewer extends javax.swing.JFrame {
     private int currentPly;
     private HashMap<String, ChartPanel> graphs;
     private volatile boolean running = true;
+    private JSCAParser jsca;
+    private boolean pgn;
+    private int tries;
 
     /**
      * Creates new form GraphicalViewer
@@ -99,10 +105,15 @@ public class GraphicalViewer extends javax.swing.JFrame {
         graphFrame = new javax.swing.JInternalFrame();
         jPanel2 = new javax.swing.JPanel();
         pattern_Button = new javax.swing.JButton();
+        writerPanel = new javax.swing.JPanel();
+        pattern_Button1 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu_Open = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        jMenu_Game = new javax.swing.JMenuItem();
+        jMenu_Ply = new javax.swing.JMenuItem();
+        Graphs_MenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(20000, 20000));
@@ -134,7 +145,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
                 .addGroup(jPanel_ParserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(parserProgress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel_ParserLayout.createSequentialGroup()
-                        .addComponent(jButton_Parser_Open, javax.swing.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
+                        .addComponent(jButton_Parser_Open, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jTextField_Parser, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -147,7 +158,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
                     .addComponent(jTextField_Parser)
                     .addComponent(jButton_Parser_Open, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(parserProgress, javax.swing.GroupLayout.DEFAULT_SIZE, 19, Short.MAX_VALUE)
+                .addComponent(parserProgress, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -319,7 +330,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(pattern_Button, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                .addComponent(pattern_Button, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -330,9 +341,34 @@ public class GraphicalViewer extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        pattern_Button1.setText("Write to File");
+        pattern_Button1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pattern_Button1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout writerPanelLayout = new javax.swing.GroupLayout(writerPanel);
+        writerPanel.setLayout(writerPanelLayout);
+        writerPanelLayout.setHorizontalGroup(
+            writerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(writerPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(pattern_Button1, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        writerPanelLayout.setVerticalGroup(
+            writerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(writerPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(pattern_Button1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
         jMenu1.setText("File");
 
         jMenu_Open.setText("Open");
+        jMenu_Open.setAccelerator(KeyStroke.getKeyStroke('O', CTRL_DOWN_MASK));
         jMenu_Open.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenu_OpenActionPerformed(evt);
@@ -342,7 +378,34 @@ public class GraphicalViewer extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Edit");
+        jMenu2.setText("Game");
+
+        jMenu_Game.setText("Game");
+        jMenu_Game.setAccelerator(KeyStroke.getKeyStroke('G', CTRL_DOWN_MASK));
+        jMenu_Game.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu_GameActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenu_Game);
+
+        jMenu_Ply.setAccelerator(KeyStroke.getKeyStroke('T', CTRL_DOWN_MASK));
+        jMenu_Ply.setText("Ply");
+        jMenu_Ply.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu_PlyActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenu_Ply);
+
+        Graphs_MenuItem.setText("Display Graphs");
+        Graphs_MenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Graphs_MenuItemActionPerformed(evt);
+            }
+        });
+        jMenu2.add(Graphs_MenuItem);
+
         jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
@@ -355,9 +418,9 @@ public class GraphicalViewer extends javax.swing.JFrame {
                 .addGap(24, 24, 24)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(Variable_Viewer_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel_Parser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(Variable_Viewer_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel_Parser, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(writerPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -376,26 +439,27 @@ public class GraphicalViewer extends javax.swing.JFrame {
                     .addComponent(Graph_Panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(128, 128, 128))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(writerPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(133, 133, 133))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenu_OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu_OpenActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenu_OpenActionPerformed
-
+    //Nothing happens
     private void jTextField_ParserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField_ParserActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField_ParserActionPerformed
 
+    //When the 'Parse' button is pressed, open a file chooser
     private void jButton_Parser_OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_Parser_OpenActionPerformed
         JFileChooser fc = new JFileChooser();
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        String[] exts = new String[1];
+        String[] exts = new String[2];
         exts[0] = "pgn";
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Only .pgn files", exts);
+        exts[1] = "jsca";
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(".pgn or .jsca files ONLY!", exts);
         fc.setFileFilter(filter);
         int returnVal = fc.showDialog(this, "Parse");
 
@@ -413,135 +477,306 @@ public class GraphicalViewer extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton_Parser_OpenActionPerformed
 
+    //Forward the viewer onto the next game
     private void jButton_Next_GameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_Next_GameActionPerformed
         try {
-            if (currentGame < games.size() - 1) {
-                this.setViewer(currentGame + 1, 0);
+            if (pgn) {
+                if (currentGame < games.size() - 1) {
+                    this.setViewer(currentGame + 1, 0);
+                }
+            } else {
+                this.setViewer(currentGame + 1, 0, true, true);
             }
         } catch (NullPointerException npe) {
         }
     }//GEN-LAST:event_jButton_Next_GameActionPerformed
 
+    //Send the viewer back a ply
     private void jButton_Previous_PlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_Previous_PlyActionPerformed
         try {
-            if (currentPly > 0) {
-                this.setViewer(currentGame, currentPly - 1);
+            if (currentPly > 1) {
+                if (pgn) {
+                    this.setViewer(currentGame, currentPly - 1);
+                } else {
+                    this.setViewer(currentGame, currentPly - 1, true, true);
+                }
             }
         } catch (NullPointerException npe) {
         }
     }//GEN-LAST:event_jButton_Previous_PlyActionPerformed
 
+    //Send the viewer forward a ply
     private void jButton_Next_PlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_Next_PlyActionPerformed
         try {
-            if (currentPly < games.get(currentGame).getPlyCount()) {
-                this.setViewer(currentGame, currentPly + 1);
+            if (pgn) {
+                if (currentPly < games.get(currentGame).getPlyCount() - 1) {
+
+                    this.setViewer(currentGame, currentPly + 1);
+
+                }
+            } else {
+                this.setViewer(currentGame, currentPly + 1, true, false);
             }
         } catch (NullPointerException npe) {
         }
     }//GEN-LAST:event_jButton_Next_PlyActionPerformed
 
+    //Send the viewer back a game
     private void jButton_PreviousGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_PreviousGameActionPerformed
         try {
-            if (currentGame > 0) {
-                this.setViewer(currentGame - 1, 0);
+            if (currentGame > 1) {
+                if (pgn) {
+                    this.setViewer(currentGame - 1, 0);
+                } else {
+                    this.setViewer(currentGame - 1, 0, true, false);
+                }
             }
         } catch (NullPointerException npe) {
         }
     }//GEN-LAST:event_jButton_PreviousGameActionPerformed
 
+    //When different variable is chosen for graphs
     private void Variable_ChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Variable_ChooserActionPerformed
-        String var = (String) this.Variable_Chooser.getSelectedItem();
-        if (var != null && graphs.containsKey(var)) {
-            graphFrame.setVisible(false);
-            graphFrame.setContentPane(graphs.get(var));
-            graphFrame.pack();
-            graphFrame.setVisible(true);
+        if (!pgn) {
+            String var = (String) this.Variable_Chooser.getSelectedItem();
+            if (var != null && graphs.containsKey(var)) {
+                graphFrame.setVisible(false);
+                graphFrame.setContentPane(graphs.get(var));
+                graphFrame.pack();
+                graphFrame.setVisible(true);
+            }
+        } else {
+            Set<String> keys = games.get(0).getVarData().keySet();
+            for (String key : keys) {
+                Variable_Chooser.addItem(key);
+            }
+            graphs = GraphUtility.getGraphs(games);
+            String var = (String) this.Variable_Chooser.getSelectedItem();
+            if (var != null && graphs.containsKey(var)) {
+                graphFrame.setVisible(false);
+                graphFrame.setContentPane(graphs.get(var));
+                graphFrame.pack();
+                graphFrame.setVisible(true);
+            }
         }
     }//GEN-LAST:event_Variable_ChooserActionPerformed
 
+    //Initiate pattern finding
     private void pattern_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pattern_ButtonActionPerformed
+        if (!pgn) {
+            games = new LinkedList<>();
+            int g = 1;
+            int t = 0;
+            while (true) {
+                Game game = jsca.get(g);
+                if (game == null) {
+                    if (t > 1000) {
+                        break;
+                    }
+                    t++;
+                } else {
+                    games.add(game);
+                }
+                g++;
+            }
+        }
         PatternFinder.findPatterns(games);
     }//GEN-LAST:event_pattern_ButtonActionPerformed
 
+    //To write the games to a .jsca file
+    private void pattern_Button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pattern_Button1ActionPerformed
+        try {
+            PrintWriter writer = new PrintWriter(this.jTextField_Parser.getText().substring(0, this.jTextField_Parser.getText().length() - 3) + "jsca", "UTF-8");
+            for (int j = 0; j < games.size(); j++) {
+                Game g = games.get(j);
+                if (g == null) {
+                    continue;
+                }
+                String str = g.toString();
+                int last = 0;
+                for (int i = 0; i < str.length(); i++) {
+                    try {
+                        if (str.substring(i, i + 1).equals("]") && !str.substring(i, i + 3).equals("] ]")) {
+                            writer.println(str.substring(last, i + 1));
+                            last = i + 1;
+                        }
+                    } catch (java.lang.StringIndexOutOfBoundsException ex) {
+                        if (str.substring(i, i + 1).equals("]")) {
+                            writer.println(str.substring(last, i + 1));
+                            last = i + 1;
+                        }
+                    }
+                }
+                writer.println();
+            }
+            writer.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(GraphicalViewer.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(GraphicalViewer.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_pattern_Button1ActionPerformed
+
+    //When the menu 'Open' is pressed, fire as if 'Parse' was pressed
+    private void jMenu_OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu_OpenActionPerformed
+        this.jButton_Parser_OpenActionPerformed(evt);
+    }//GEN-LAST:event_jMenu_OpenActionPerformed
+
+    //When the user wants to jump games, prompt them for a game number and try to jump to that game
+    private void jMenu_GameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu_GameActionPerformed
+        String inputValue = JOptionPane.showInputDialog("Please input a value (Integers only):");
+        try {
+            setViewer(Integer.parseInt(inputValue), 0, false, true);
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_jMenu_GameActionPerformed
+
+    //When the user wants to jump to a new ply, prompt them for a ply number and try to jump to that ply
+    private void jMenu_PlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu_PlyActionPerformed
+        String inputValue = JOptionPane.showInputDialog("Please input a value (Integers only):");
+        try {
+            setViewer(currentGame, Integer.parseInt(inputValue), false, true);
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_jMenu_PlyActionPerformed
+
+    //For displaying graphs from specific games
+    private void Graphs_MenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Graphs_MenuItemActionPerformed
+        String inputValue = JOptionPane.showInputDialog("Please input a values separated by commas:");
+        try {
+            String[] vals = inputValue.split(",");
+            LinkedList<Game> getFor = new LinkedList<>();
+            for (String str : vals) {
+                if (pgn) {
+                    getFor.add(games.get(Integer.parseInt(str)));
+                } else {
+                    getFor.add(jsca.get(Integer.parseInt(str)));
+                }
+            }
+            for (String s : getFor.get(0).getVarData().keySet()) {
+                this.Variable_Chooser.addItem(s);
+            }
+            graphs = GraphUtility.getGraphs(getFor);
+        } catch (Exception e) {
+            try {
+                String[] vals = inputValue.split(", ");
+                LinkedList<Game> getFor = new LinkedList<>();
+                for (String str : vals) {
+                    if (pgn) {
+                        getFor.add(games.get(Integer.parseInt(str)));
+                    } else {
+                        getFor.add(jsca.get(Integer.parseInt(str)));
+                    }
+                }
+                for (String s : getFor.get(0).getVarData().keySet()) {
+                    this.Variable_Chooser.addItem(s);
+                }
+                graphs = GraphUtility.getGraphs(getFor);
+            } catch (Exception ee) {
+            }
+        }
+    }//GEN-LAST:event_Graphs_MenuItemActionPerformed
+
+    //Mananage opening a file;
     private void selectedPGN(File file) {
 
         String fileLoc = file.getAbsolutePath();
         //fileLoc = "File:" + fileLoc.substring(2);
-        for (int i = 0; i < fileLoc.length(); i++) {
-            if (fileLoc.substring(i, i + 1).equals("/")) {
-                fileLoc = fileLoc.substring(0, i) + "\\" + fileLoc.substring(i + 1);
-            }
-        }
-        try {
-            ScriptEngineManager factory = new ScriptEngineManager();
-            // create JavaScript engine
-            final ScriptEngine engine = factory.getEngineByName("JavaScript");
-            // evaluate JavaScript code from given file - specified by first argument
-            engine.put("engine", engine);
-            ClassLoader cl = GraphicalViewer.class.getClassLoader();
-            URL url = cl.getResource("\\org\\samjoey\\gameLooper\\GameLooper_1.js");
-            String loopLoc = url.toString().substring(5);
-            for (int i = 0; i < loopLoc.length() - 3; i++) {
-                if (loopLoc.substring(i, i + 3).equals("%5c")) {
-                    loopLoc = loopLoc.substring(0, i) + "/" + loopLoc.substring(i + 3);
+        if (fileLoc.contains(".pgn")) {
+            pgn = true;
+            for (int i = 0; i < fileLoc.length(); i++) {
+                if (fileLoc.substring(i, i + 1).equals("/")) {
+                    fileLoc = fileLoc.substring(0, i) + "\\" + fileLoc.substring(i + 1);
                 }
             }
-            engine.put("loopLoc", loopLoc);
-            url = cl.getResource("\\org\\samjoey\\calculator\\calcDefs_1.js");
-            String defsLoc = url.toString().substring(5);
-            for (int i = 0; i < defsLoc.length() - 3; i++) {
-                if (defsLoc.substring(i, i + 3).equals("%5c")) {
-                    defsLoc = defsLoc.substring(0, i) + "/" + defsLoc.substring(i + 3);
+            try {
+                ScriptEngineManager factory = new ScriptEngineManager();
+                // create JavaScript engine
+                final ScriptEngine engine = factory.getEngineByName("JavaScript");
+                // evaluate JavaScript code from given file - specified by first argument
+                engine.put("engine", engine);
+                ClassLoader cl = GraphicalViewer.class.getClassLoader();
+                URL url = cl.getResource("\\org\\samjoey\\gameLooper\\GameLooper_1.js");
+                String loopLoc = url.toString().substring(5);
+                for (int i = 0; i < loopLoc.length() - 3; i++) {
+                    if (loopLoc.substring(i, i + 3).equals("%5c")) {
+                        loopLoc = loopLoc.substring(0, i) + "/" + loopLoc.substring(i + 3);
+                    }
                 }
-            }
-            engine.put("defsLoc", defsLoc);
-            url = cl.getResource("\\org\\samjoey\\calculator\\Calculator.js");
-            String calcLoc = url.toString().substring(5);
-            for (int i = 0; i < calcLoc.length() - 3; i++) {
-                if (calcLoc.substring(i, i + 3).equals("%5c")) {
-                    calcLoc = calcLoc.substring(0, i) + "/" + calcLoc.substring(i + 3);
+                engine.put("loopLoc", loopLoc);
+                url = cl.getResource("\\org\\samjoey\\calculator\\calcDefs_1.js");
+                String defsLoc = url.toString().substring(5);
+                for (int i = 0; i < defsLoc.length() - 3; i++) {
+                    if (defsLoc.substring(i, i + 3).equals("%5c")) {
+                        defsLoc = defsLoc.substring(0, i) + "/" + defsLoc.substring(i + 3);
+                    }
                 }
-            }
-            engine.put("calcLoc", calcLoc);
-            String args[] = {"-g:false", fileLoc};
-            engine.put("arguments", args);
-            parserProgress.setStringPainted(true);
-            running = false;
-            running = true;
-            Thread thread = new Thread() {
-                @Override
-                public void run() {
-                    while (true) {
-                        if (Parser.games > 0 && Parser.progress == Parser.games) {
+                engine.put("defsLoc", defsLoc);
+                url = cl.getResource("\\org\\samjoey\\calculator\\Calculator.js");
+                String calcLoc = url.toString().substring(5);
+                for (int i = 0; i < calcLoc.length() - 3; i++) {
+                    if (calcLoc.substring(i, i + 3).equals("%5c")) {
+                        calcLoc = calcLoc.substring(0, i) + "/" + calcLoc.substring(i + 3);
+                    }
+                }
+                engine.put("calcLoc", calcLoc);
+                String args[] = {"-g:false", fileLoc};
+                engine.put("arguments", args);
+                parserProgress.setStringPainted(true);
+                running = false;
+                running = true;
+                Thread thread = new Thread() {
+                    @Override
+                    public void run() {
+                        long last = 0l;
+                        boolean print = true;
+                        double p = .01;
+                        while (true) {
+                            //if (Parser.numGames > 0 && Parser.progress == Parser.numGames) {
                             try {
                                 parserProgress.setValue(Integer.parseInt((String) engine.get("progress")));
                                 parserProgress.setMaximum(Integer.parseInt((String) engine.get("size")));
-                                if(Integer.parseInt((String) engine.get("progress")) == Integer.parseInt((String) engine.get("size"))){
+                                if (last == 0l) {
+                                    last = System.nanoTime();
+                                }
+                                if (Integer.parseInt((String) engine.get("progress")) == Integer.parseInt((String) engine.get("size"))) {
                                     break;
+                                }
+                                if ((double) parserProgress.getValue() / (double) parserProgress.getMaximum() > p && print) {
+                                    //System.out.println(p + ": " + (System.nanoTime() - last));
+                                    //print = false;
+                                    p += .01;
                                 }
                             } catch (Exception e) {
                             }
-                        } else {
-                            parserProgress.setMaximum(Parser.games - 1);
-                            parserProgress.setMinimum(0);
-                            parserProgress.setValue(Parser.progress);
+                            //} else {
+                            //    parserProgress.setMaximum(Parser.numGames - 1);
+                            //    parserProgress.setMinimum(0);
+                            //    parserProgress.setValue(Parser.progress);
+                            //}
                         }
                     }
+                };
+                thread.start();
+                engine.eval(new java.io.FileReader(GraphicalViewer.class.getClassLoader().getResource("driver_1.js").toString().substring(5)));
+                while (games == null || games.get((int) (Math.random() * games.size())).getVarData().size() < 20) {
+                    games = (LinkedList<Game>) engine.get("gameList");
                 }
-            };
-            thread.start();
-            engine.eval(new java.io.FileReader(GraphicalViewer.class.getClassLoader().getResource("driver_1.js").toString().substring(5)));
+            } catch (ScriptException | FileNotFoundException ex) {
+                Logger.getLogger(GraphicalViewer.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            Set<String> keys = games.get(0).getVarData().keySet();
+            for (String key : keys) {
+                Variable_Chooser.addItem(key);
+            }
+            graphs = GraphUtility.getGraphs(games);
 
-            games = (LinkedList<Game>) engine.get("gameList");
-        } catch (ScriptException | FileNotFoundException ex) {
-            Logger.getLogger(GraphicalViewer.class.getName()).log(Level.SEVERE, null, ex);
+            setViewer(0, 0);
+        } else if (fileLoc.contains(".jsca")) {
+            pgn = false;
+            jsca = new JSCAParser(fileLoc);
+            setViewer(1, 0, true, true);
         }
-        Set<String> keys = games.get(0).getVarData().keySet();
-        for (String key : keys) {
-            this.Variable_Chooser.addItem(key);
-        }
-        graphs = GraphUtility.getGraphs(games);
-        setViewer(0, 0);
     }
 
     /**
@@ -576,6 +811,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Game_Label;
     private javax.swing.JPanel Graph_Panel;
+    private javax.swing.JMenuItem Graphs_MenuItem;
     private javax.swing.JLabel Ply_Label;
     private javax.swing.JComboBox Variable_Chooser;
     private javax.swing.JPanel Variable_Viewer_Panel;
@@ -589,7 +825,9 @@ public class GraphicalViewer extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenu_Game;
     private javax.swing.JMenuItem jMenu_Open;
+    private javax.swing.JMenuItem jMenu_Ply;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel_Parser;
@@ -600,13 +838,111 @@ public class GraphicalViewer extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField_Parser;
     private volatile javax.swing.JProgressBar parserProgress;
     private javax.swing.JButton pattern_Button;
+    private javax.swing.JButton pattern_Button1;
+    private javax.swing.JPanel writerPanel;
     // End of variables declaration//GEN-END:variables
 
+    //Set the viewer to a new game and ply (.jsca only)
+    private void setViewer(int g, int ply, boolean goToNext, boolean pos) {
+        int num;
+        if (pos) {
+            num = 1;
+        } else {
+            num = -1;
+        }
+        Game game = jsca.get(g);
+        if (game == null) {
+            if (goToNext && tries < 1000) {
+                setViewer(g + 1, 0, true, pos);
+                tries += num;
+                return;
+            }
+        }
+        String viewer = "";
+        try {
+            String[][] board = game.getAllBoards().get(ply).getAll();
+            for (String[] r : board) {
+                for (String c : r) {
+                    viewer += "|";
+                    if (c.equals("")) {
+                        viewer += "&#8199;&thinsp;&thinsp;&thinsp;";
+                        continue;
+                    }
+                    if (c.equals("WP")) {
+                        viewer += WHITE_PAWN;
+                        continue;
+                    }
+                    if (c.equals("WB")) {
+                        viewer += WHITE_BISHOP;
+                        continue;
+                    }
+                    if (c.equals("WN")) {
+                        viewer += WHITE_KNIGHT;
+                        continue;
+                    }
+                    if (c.equals("WR")) {
+                        viewer += WHITE_ROOK;
+                        continue;
+                    }
+                    if (c.equals("WQ")) {
+                        viewer += WHITE_QUEEN;
+                        continue;
+                    }
+                    if (c.equals("WK")) {
+                        viewer += WHITE_KING;
+                        continue;
+                    }
+                    if (c.equals("BP")) {
+                        viewer += BLACK_PAWN;
+                        continue;
+                    }
+                    if (c.equals("BB")) {
+                        viewer += BLACK_BISHOP;
+                        continue;
+                    }
+                    if (c.equals("BN")) {
+                        viewer += BLACK_KNIGHT;
+                        continue;
+                    }
+                    if (c.equals("BR")) {
+                        viewer += BLACK_ROOK;
+                        continue;
+                    }
+                    if (c.equals("BQ")) {
+                        viewer += BLACK_QUEEN;
+                        continue;
+                    }
+                    if (c.equals("BK")) {
+                        viewer += BLACK_KING;
+                        continue;
+                    }
+                }
+                viewer += "<br>";
+            }
+            this.jTextArea_Game_Viewer.setText(viewer);
+
+            String variables = "";
+            HashMap<String, ArrayList<Double>> vars = game.getVarData();
+            for (String key : vars.keySet()) {
+                variables += key;
+                variables += "= ";
+                variables += ("" + vars.get(key).get(ply));
+                variables += "\n";
+            }
+            this.Variable_Viewer_Textpane.setText(variables);
+            this.Game_Label.setText("Game ID: " + game.getId());
+            this.Ply_Label.setText("Ply: " + (ply + 1));
+            this.currentPly = ply;
+            this.currentGame = g;
+        } catch (Exception e) {
+        }
+    }
+
+    //Set the viewer to a new game and ply (.pgn only)
     private void setViewer(int game, int ply) {
         this.Game_Label.setText("Game ID: " + games.get(game).getId());
         this.Ply_Label.setText("Ply: " + (ply + 1));
         this.currentGame = game;
-        this.currentPly = ply;
         String viewer = "";
         String[][] board = games.get(game).getAllBoards().get(ply).getAll();
         for (String[] r : board) {

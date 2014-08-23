@@ -7,7 +7,7 @@ importClass(Packages.org.samjoey.parse.Parser);
 importClass(Packages.org.samjoey.model.Game);
 importPackage(Packages.org.samjoey.calculator);
 importClass(Packages.org.samjoey.pattern.PatternFinder);
-importClass(Packages.org.samjoey.samples.GraphicalViewer);
+importClass(Packages.org.samjoey.gui.GraphicalViewer);
 importClass(Packages.org.samjoey.graphing.GraphUtility);
 engine.eval(new java.io.FileReader(defsLoc));
 engine.eval(new java.io.FileReader(loopLoc));
@@ -60,37 +60,38 @@ for (var i in arguments) {
 
 // Retrieve an ArrayList of Games to analyze
 var gameList = Parser.parseGames(CLIArgs['fileLoc']);
+print(gameList.size());
 // Get access to a GameLooper
 var gameLooper = new GameLooper();
 gameLooper.addCalculator(TotalisticUnweightedCenter('x'));
 gameLooper.addCalculator(TotalisticWeightedCenter('x'));
 gameLooper.addCalculator(TotalisticUnweightedCenter('y'));
-gameLooper.addCalculator(TotalisticWeightedCenter('u'));
+gameLooper.addCalculator(TotalisticWeightedCenter('y'));
 //gameLooper.addCalculator(PieceCountVars(white_or_black_or_all, weighted_or_unweighted));
 var calcType = {
     'Players': ["White", "Black", "Total"],
     'Weights': ["Weighted", "Unweighted"]
 };
 for (i in calcType['Players']) {
-    //gameLooper.addCalculator(AveragePieceValue(calcType['Players'][i]));
+    gameLooper.addCalculator(AveragePieceValue(calcType['Players'][i]));
     for (j in calcType['Weights']) {
-        //gameLooper.addCalculator(PieceCountVars(calcType['Players'][i], calcType['Weights'][j]));
+        gameLooper.addCalculator(PieceCountVars(calcType['Players'][i], calcType['Weights'][j]));
     }
 }
-//gameLooper.addCalculator(new JCalculatorChecks("Black"));
-//gameLooper.addCalculator(new JCalculatorChecks("White"));
-//gameLooper.addCalculator(new JCalculatorMoveTime(""));
+gameLooper.addCalculator(new JCalculatorChecks("Black"));
+gameLooper.addCalculator(new JCalculatorChecks("White"));
+gameLooper.addCalculator(new JCalculatorMoveTime(""));
 //gameLooper.addCalculator(new JCalculatorMoveTime("White"));
 //gameLooper.addCalculator(new JCalculatorMoveTime("Black"));
-//gameLooper.addCalculator(new JCalculatorPawnMovement());
+gameLooper.addCalculator(new JCalculatorPawnMovement());
 //gameLooper.addCalculator(new JCalculatorMoveDistance(""));
 //gameLooper.addCalculator(new JCalculatorMoveDistance("Black"));
 //gameLooper.addCalculator(new JCalculatorMoveDistance("White"));
 gameLooper.addCalculator(new JCalculatorMoveDistance());
-gameLooper.addCalculator(new JCalculatorWhiteMoveDistance());
-gameLooper.addCalculator(new JCalculatorBlackMoveDistance());
-//gameLooper.addCalculator(Symmetry("reflect"));
-//gameLooper.addCalculator(Symmetry("rotate"));
+//gameLooper.addCalculator(new JCalculatorWhiteMoveDistance());
+//gameLooper.addCalculator(new JCalculatorBlackMoveDistance());
+gameLooper.addCalculator(Symmetry("reflect"));
+gameLooper.addCalculator(Symmetry("rotate"));
 //gameLooper.addCalculator(new JCalculatorAverageChange(new JCalculatorMoveDistance()));
 //gameLooper.addCalculator(new JCalculatorAverageChange(new JCalculatorBlackMoveDistance()));
 //gameLooper.addCalculator(new JCalculatorAverageChange(new JCalculatorWhiteMoveDistance()));
@@ -102,27 +103,39 @@ gameLooper.addCalculator(new JCalculatorBlackMoveDistance());
 
 
 // For every game...
+print("Calcing\n");
+engine.put("progress", "" + 0);
 engine.put("size", "" + (gameList.size() - 1));
+print(java.lang.Thread.activeCount() + "\n");
 for (var i = 0; i < gameList.size(); i++) {
-    // save to a variable
-    var currentGame = gameList.get(i);
+    try {
+        print(i + ": Waiting for thread to open up...\n");
 
-    // pass to the correct gameLooper
-    // may have different gls finding different stuff
-    gameLooper.open(currentGame);
+        while (java.lang.Thread.activeCount() > 15) {
+        }
+        print("Starting Thread...\n");
+        // save to a variable
+        var currentGame = gameList.get(i);
 
-    // do your magic!
-    gameLooper.calculate();
+        // pass to the correct gameLooper
+        // may have different gls finding different stuff
+        gameLooper.open(currentGame);
 
-    // show the results
-    if (CLIArgs['verbose']) {
-        print("-----------------------------------");
-        gameLooper.read();
+        // do your magic!
+        gameLooper.calculate();
+
+        // show the results
+        if (CLIArgs['verbose']) {
+            print("-----------------------------------");
+            gameLooper.read();
+        }
+
+        // prepare to move on to the next
+        gameLooper.close();
+    } catch (err) {
+
     }
 
-    // prepare to move on to the next
-    gameLooper.close();
-    engine.put("progress", "" + i);
 }
 
 // Do the graphical stuff in a new thread

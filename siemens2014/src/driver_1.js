@@ -62,7 +62,7 @@ for (var i in arguments) {
 var gameList = Parser.parseGames(CLIArgs['fileLoc']);
 // Get access to a GameLooper
 var gameLooper = new GameLooper();
-gameLooper.addCalculator(TotalisticUnweightedCenter('x'));
+/*gameLooper.addCalculator(TotalisticUnweightedCenter('x'));
 gameLooper.addCalculator(TotalisticWeightedCenter('x'));
 //gameLooper.addCalculator(PieceCountVars(white_or_black_or_all, weighted_or_unweighted));
 var calcType = {
@@ -84,11 +84,11 @@ gameLooper.addCalculator(new JCalculatorPawnMovement());
 //gameLooper.addCalculator(new JCalculatorMoveDistance(""));
 //gameLooper.addCalculator(new JCalculatorMoveDistance("Black"));
 //gameLooper.addCalculator(new JCalculatorMoveDistance("White"));
-gameLooper.addCalculator(new JCalculatorMoveDistance());
+gameLooper.addCalculator(new JCalculatorMoveDistance());*/
 gameLooper.addCalculator(new JCalculatorWhiteMoveDistance());
 gameLooper.addCalculator(new JCalculatorBlackMoveDistance());
-gameLooper.addCalculator(Symmetry("reflect"));
-gameLooper.addCalculator(Symmetry("rotate"));
+//gameLooper.addCalculator(Symmetry("reflect"));
+//gameLooper.addCalculator(Symmetry("rotate"));
 // gameLooper.addCalculator(<calcNameHere>);
 
 

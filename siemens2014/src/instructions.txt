@@ -1,0 +1,8 @@
+Run uncompiled:
+    java -classpath ./*;./rhino/* org.mozilla.javascript.tools.shell.Main driver_plus.js -v -g:false ..\docs\smaller.pgn
+
+Compile it:
+    java -cp .;rhino/js.jar org.mozilla.javascript.tools.jsc.Main -opt 9 driver_plus.js
+
+Run compiled:
+    java -cp .;./*;rhino/js.jar driver_plus -v -g:false ..\docs\smaller.pgn

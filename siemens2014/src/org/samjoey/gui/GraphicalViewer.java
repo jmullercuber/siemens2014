@@ -682,7 +682,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
 
         String fileLoc = file.getAbsolutePath();
         //fileLoc = "File:" + fileLoc.substring(2);
-        if (fileLoc.contains(".pgn")) {
+        if (fileLoc.substring(fileLoc.length()-3).equals("pgn")) {
             pgn = true;
             for (int i = 0; i < fileLoc.length(); i++) {
                 if (fileLoc.substring(i, i + 1).equals("/")) {
@@ -772,7 +772,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
             graphs = GraphUtility.getGraphs(games);
 
             setViewer(0, 0);
-        } else if (fileLoc.contains(".jsca")) {
+        } else if (fileLoc.substring(fileLoc.length()-4).equals("jsca")) {
             pgn = false;
             jsca = new JSCAParser(fileLoc);
             setViewer(1, 0, true, true);

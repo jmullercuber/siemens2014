@@ -690,12 +690,14 @@ public class GraphicalViewer extends javax.swing.JFrame {
                 }
             }
             try {
+                // Below: Talk to JavaScript
                 ScriptEngineManager factory = new ScriptEngineManager();
                 // create JavaScript engine
                 final ScriptEngine engine = factory.getEngineByName("JavaScript");
                 // evaluate JavaScript code from given file - specified by first argument
                 engine.put("engine", engine);
                 ClassLoader cl = GraphicalViewer.class.getClassLoader();
+                // Talk to GameLooper_1
                 URL url = cl.getResource("\\org\\samjoey\\gameLooper\\GameLooper_1.js");
                 String loopLoc = url.toString().substring(5);
                 for (int i = 0; i < loopLoc.length() - 3; i++) {
@@ -704,6 +706,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
                     }
                 }
                 engine.put("loopLoc", loopLoc);
+                // Talk to calcDefs_1
                 url = cl.getResource("\\org\\samjoey\\calculator\\calcDefs_1.js");
                 String defsLoc = url.toString().substring(5);
                 for (int i = 0; i < defsLoc.length() - 3; i++) {
@@ -712,6 +715,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
                     }
                 }
                 engine.put("defsLoc", defsLoc);
+                // Talk to Calculator
                 url = cl.getResource("\\org\\samjoey\\calculator\\Calculator.js");
                 String calcLoc = url.toString().substring(5);
                 for (int i = 0; i < calcLoc.length() - 3; i++) {
@@ -722,6 +726,8 @@ public class GraphicalViewer extends javax.swing.JFrame {
                 engine.put("calcLoc", calcLoc);
                 String args[] = {"-g:false", fileLoc};
                 engine.put("arguments", args);
+                
+                // Create a Thread to update the parser's progress bar
                 parserProgress.setStringPainted(true);
                 running = false;
                 running = true;
@@ -731,16 +737,13 @@ public class GraphicalViewer extends javax.swing.JFrame {
                         long last = 0l;
                         boolean print = true;
                         double p = .01;
-                        while (true) {
+                        while (Integer.parseInt((String) engine.get("progress")) != Integer.parseInt((String) engine.get("size"))) {
                             //if (Parser.numGames > 0 && Parser.progress == Parser.numGames) {
                             try {
                                 parserProgress.setValue(Integer.parseInt((String) engine.get("progress")));
                                 parserProgress.setMaximum(Integer.parseInt((String) engine.get("size")));
                                 if (last == 0l) {
                                     last = System.nanoTime();
-                                }
-                                if (Integer.parseInt((String) engine.get("progress")) == Integer.parseInt((String) engine.get("size"))) {
-                                    break;
                                 }
                                 if ((double) parserProgress.getValue() / (double) parserProgress.getMaximum() > p && print) {
                                     //System.out.println(p + ": " + (System.nanoTime() - last));
@@ -758,6 +761,8 @@ public class GraphicalViewer extends javax.swing.JFrame {
                     }
                 };
                 thread.start();
+                
+                // I have no clue what's here!??
                 engine.eval(new java.io.FileReader(GraphicalViewer.class.getClassLoader().getResource("driver_1.js").toString().substring(5)));
                 while (games == null || games.get((int) (Math.random() * games.size())).getVarData().size() < 20) {
                     games = (LinkedList<Game>) engine.get("gameList");
@@ -843,108 +848,36 @@ public class GraphicalViewer extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     //Set the viewer to a new game and ply (.jsca only)
-    private void setViewer(int g, int ply, boolean goToNext, boolean pos) {
+    private void setViewer(int game, int ply, boolean goToNext, boolean pos) {
         int num;
         if (pos) {
             num = 1;
         } else {
             num = -1;
         }
-        Game game = jsca.get(g);
-        if (game == null) {
+        Game g = jsca.get(game);
+        if (g == null) {
             if (goToNext && tries < 1000) {
-                setViewer(g + 1, 0, true, pos);
+                setViewer(game + 1, 0, true, pos);
                 tries += num;
                 return;
             }
         }
-        String viewer = "";
         try {
-            String[][] board = game.getAllBoards().get(ply).getAll();
-            for (String[] r : board) {
-                for (String c : r) {
-                    viewer += "|";
-                    if (c.equals("")) {
-                        viewer += "&#8199;&thinsp;&thinsp;&thinsp;";
-                        continue;
-                    }
-                    if (c.equals("WP")) {
-                        viewer += WHITE_PAWN;
-                        continue;
-                    }
-                    if (c.equals("WB")) {
-                        viewer += WHITE_BISHOP;
-                        continue;
-                    }
-                    if (c.equals("WN")) {
-                        viewer += WHITE_KNIGHT;
-                        continue;
-                    }
-                    if (c.equals("WR")) {
-                        viewer += WHITE_ROOK;
-                        continue;
-                    }
-                    if (c.equals("WQ")) {
-                        viewer += WHITE_QUEEN;
-                        continue;
-                    }
-                    if (c.equals("WK")) {
-                        viewer += WHITE_KING;
-                        continue;
-                    }
-                    if (c.equals("BP")) {
-                        viewer += BLACK_PAWN;
-                        continue;
-                    }
-                    if (c.equals("BB")) {
-                        viewer += BLACK_BISHOP;
-                        continue;
-                    }
-                    if (c.equals("BN")) {
-                        viewer += BLACK_KNIGHT;
-                        continue;
-                    }
-                    if (c.equals("BR")) {
-                        viewer += BLACK_ROOK;
-                        continue;
-                    }
-                    if (c.equals("BQ")) {
-                        viewer += BLACK_QUEEN;
-                        continue;
-                    }
-                    if (c.equals("BK")) {
-                        viewer += BLACK_KING;
-                        continue;
-                    }
-                }
-                viewer += "<br>";
-            }
-            this.jTextArea_Game_Viewer.setText(viewer);
-
-            String variables = "";
-            HashMap<String, ArrayList<Double>> vars = game.getVarData();
-            for (String key : vars.keySet()) {
-                variables += key;
-                variables += "= ";
-                variables += ("" + vars.get(key).get(ply));
-                variables += "\n";
-            }
-            this.Variable_Viewer_Textpane.setText(variables);
-            this.Game_Label.setText("Game ID: " + game.getId());
-            this.Ply_Label.setText("Ply: " + (ply + 1));
-            this.currentPly = ply;
-            this.currentGame = g;
+            setViewer(g, game, ply);
         } catch (Exception e) {
         }
     }
 
     //Set the viewer to a new game and ply (.pgn only)
     private void setViewer(int game, int ply) {
-        this.Game_Label.setText("Game ID: " + games.get(game).getId());
-        this.Ply_Label.setText("Ply: " + (ply + 1));
-        this.currentGame = game;
+        setViewer(games.get(game) ,game, ply);
+    }
+    
+    // Neutral setViewer (pgn and jsca)
+    private void setViewer(Game g, int game, int ply) {
         String viewer = "";
-        String[][] board = games.get(game).getAllBoards().get(ply).getAll();
+        String[][] board = g.getAllBoards().get(ply).getAll();
         for (String[] r : board) {
             for (String c : r) {
                 viewer += "|";
@@ -1006,7 +939,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
         this.jTextArea_Game_Viewer.setText(viewer);
 
         String variables = "";
-        HashMap<String, ArrayList<Double>> vars = games.get(game).getVarData();
+        HashMap<String, ArrayList<Double>> vars = g.getVarData();
         for (String key : vars.keySet()) {
             variables += key;
             variables += "= ";
@@ -1014,5 +947,10 @@ public class GraphicalViewer extends javax.swing.JFrame {
             variables += "\n";
         }
         this.Variable_Viewer_Textpane.setText(variables);
+        
+        this.Game_Label.setText("Game ID: " + g.getId());
+        this.Ply_Label.setText("Ply: " + (ply + 1));
+        this.currentGame = game;
+        this.currentPly = ply;
     }
 }

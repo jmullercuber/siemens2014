@@ -811,7 +811,9 @@ public class GraphicalViewer extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new GraphicalViewer().setVisible(true);
+                javax.swing.JFrame gv = new GraphicalViewer();
+                        gv.setVisible(true);
+                        gv.setExtendedState(gv.getExtendedState() | javax.swing.JFrame.MAXIMIZED_BOTH);
             }
         });
     }

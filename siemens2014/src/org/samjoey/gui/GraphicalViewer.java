@@ -737,7 +737,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
                         long last = 0l;
                         boolean print = true;
                         double p = .01;
-                        while (Integer.parseInt((String) engine.get("progress")) != Integer.parseInt((String) engine.get("size"))) {
+                        while (engine.get("progress")==null || engine.get("size")==null || Integer.parseInt((String) engine.get("progress")) != Integer.parseInt((String) engine.get("size"))) {
                             //if (Parser.numGames > 0 && Parser.progress == Parser.numGames) {
                             try {
                                 parserProgress.setValue(Integer.parseInt((String) engine.get("progress")));

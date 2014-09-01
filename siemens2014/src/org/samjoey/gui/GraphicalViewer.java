@@ -63,9 +63,6 @@ public class GraphicalViewer extends javax.swing.JFrame {
     private int currentPly;
     private HashMap<String, ChartPanel> graphs;
     private volatile boolean running = true;
-    private JSCAParser jsca;
-    private boolean pgn;
-    private int tries;
 
     /**
      * Creates new form GraphicalViewer
@@ -480,12 +477,8 @@ public class GraphicalViewer extends javax.swing.JFrame {
     //Forward the viewer onto the next game
     private void jButton_Next_GameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_Next_GameActionPerformed
         try {
-            if (pgn) {
-                if (currentGame < games.size() - 1) {
-                    this.setViewer(currentGame + 1, 0);
-                }
-            } else {
-                this.setViewer(currentGame + 1, 0, true, true);
+            if (currentGame < games.size() - 1) {
+                this.setViewer(currentGame + 1, 0);
             }
         } catch (NullPointerException npe) {
         }
@@ -495,11 +488,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
     private void jButton_Previous_PlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_Previous_PlyActionPerformed
         try {
             if (currentPly > 1) {
-                if (pgn) {
-                    this.setViewer(currentGame, currentPly - 1);
-                } else {
-                    this.setViewer(currentGame, currentPly - 1, true, true);
-                }
+                this.setViewer(currentGame, currentPly - 1);
             }
         } catch (NullPointerException npe) {
         }
@@ -508,14 +497,8 @@ public class GraphicalViewer extends javax.swing.JFrame {
     //Send the viewer forward a ply
     private void jButton_Next_PlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_Next_PlyActionPerformed
         try {
-            if (pgn) {
-                if (currentPly < games.get(currentGame).getPlyCount() - 1) {
-
-                    this.setViewer(currentGame, currentPly + 1);
-
-                }
-            } else {
-                this.setViewer(currentGame, currentPly + 1, true, false);
+            if (currentPly < games.get(currentGame).getPlyCount() - 1) {
+                this.setViewer(currentGame, currentPly + 1);
             }
         } catch (NullPointerException npe) {
         }
@@ -525,11 +508,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
     private void jButton_PreviousGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_PreviousGameActionPerformed
         try {
             if (currentGame > 1) {
-                if (pgn) {
-                    this.setViewer(currentGame - 1, 0);
-                } else {
-                    this.setViewer(currentGame - 1, 0, true, false);
-                }
+                this.setViewer(currentGame - 1, 0);
             }
         } catch (NullPointerException npe) {
         }
@@ -537,49 +516,24 @@ public class GraphicalViewer extends javax.swing.JFrame {
 
     //When different variable is chosen for graphs
     private void Variable_ChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Variable_ChooserActionPerformed
-        if (!pgn) {
-            String var = (String) this.Variable_Chooser.getSelectedItem();
-            if (var != null && graphs.containsKey(var)) {
-                graphFrame.setVisible(false);
-                graphFrame.setContentPane(graphs.get(var));
-                graphFrame.pack();
-                graphFrame.setVisible(true);
-            }
-        } else {
-            Set<String> keys = games.get(0).getVarData().keySet();
-            for (String key : keys) {
-                Variable_Chooser.addItem(key);
-            }
-            graphs = GraphUtility.getGraphs(games);
-            String var = (String) this.Variable_Chooser.getSelectedItem();
-            if (var != null && graphs.containsKey(var)) {
-                graphFrame.setVisible(false);
-                graphFrame.setContentPane(graphs.get(var));
-                graphFrame.pack();
-                graphFrame.setVisible(true);
-            }
+        // Explaination here please
+        Set<String> keys = games.get(0).getVarData().keySet();
+        for (String key : keys) {
+            Variable_Chooser.addItem(key);
+        }
+        graphs = GraphUtility.getGraphs(games);
+        
+        String var = (String) this.Variable_Chooser.getSelectedItem();
+        if (var != null && graphs.containsKey(var)) {
+            graphFrame.setVisible(false);
+            graphFrame.setContentPane(graphs.get(var));
+            graphFrame.pack();
+            graphFrame.setVisible(true);
         }
     }//GEN-LAST:event_Variable_ChooserActionPerformed
 
     //Initiate pattern finding
     private void pattern_ButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pattern_ButtonActionPerformed
-        if (!pgn) {
-            games = new LinkedList<>();
-            int g = 1;
-            int t = 0;
-            while (true) {
-                Game game = jsca.get(g);
-                if (game == null) {
-                    if (t > 1000) {
-                        break;
-                    }
-                    t++;
-                } else {
-                    games.add(game);
-                }
-                g++;
-            }
-        }
         PatternFinder.findPatterns(games);
     }//GEN-LAST:event_pattern_ButtonActionPerformed
 
@@ -626,7 +580,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
     private void jMenu_GameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu_GameActionPerformed
         String inputValue = JOptionPane.showInputDialog("Please input a value (Integers only):");
         try {
-            setViewer(Integer.parseInt(inputValue), 0, false, true);
+            setViewer(Integer.parseInt(inputValue), 0);
         } catch (Exception e) {
         }
     }//GEN-LAST:event_jMenu_GameActionPerformed
@@ -635,7 +589,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
     private void jMenu_PlyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu_PlyActionPerformed
         String inputValue = JOptionPane.showInputDialog("Please input a value (Integers only):");
         try {
-            setViewer(currentGame, Integer.parseInt(inputValue), false, true);
+            setViewer(currentGame, Integer.parseInt(inputValue));
         } catch (Exception e) {
         }
     }//GEN-LAST:event_jMenu_PlyActionPerformed
@@ -647,11 +601,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
             String[] vals = inputValue.split(",");
             LinkedList<Game> getFor = new LinkedList<>();
             for (String str : vals) {
-                if (pgn) {
-                    getFor.add(games.get(Integer.parseInt(str)));
-                } else {
-                    getFor.add(jsca.get(Integer.parseInt(str)));
-                }
+                getFor.add(games.get(Integer.parseInt(str)));
             }
             for (String s : getFor.get(0).getVarData().keySet()) {
                 this.Variable_Chooser.addItem(s);
@@ -662,11 +612,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
                 String[] vals = inputValue.split(", ");
                 LinkedList<Game> getFor = new LinkedList<>();
                 for (String str : vals) {
-                    if (pgn) {
-                        getFor.add(games.get(Integer.parseInt(str)));
-                    } else {
-                        getFor.add(jsca.get(Integer.parseInt(str)));
-                    }
+                    getFor.add(games.get(Integer.parseInt(str)));
                 }
                 for (String s : getFor.get(0).getVarData().keySet()) {
                     this.Variable_Chooser.addItem(s);
@@ -683,7 +629,6 @@ public class GraphicalViewer extends javax.swing.JFrame {
         String fileLoc = file.getAbsolutePath();
         //fileLoc = "File:" + fileLoc.substring(2);
         if (fileLoc.substring(fileLoc.length()-3).equals("pgn")) {
-            pgn = true;
             for (int i = 0; i < fileLoc.length(); i++) {
                 if (fileLoc.substring(i, i + 1).equals("/")) {
                     fileLoc = fileLoc.substring(0, i) + "\\" + fileLoc.substring(i + 1);
@@ -772,18 +717,18 @@ public class GraphicalViewer extends javax.swing.JFrame {
             } catch (ScriptException | FileNotFoundException ex) {
                 Logger.getLogger(GraphicalViewer.class.getName()).log(Level.SEVERE, null, ex);
             }
-            Set<String> keys = games.get(0).getVarData().keySet();
-            for (String key : keys) {
-                Variable_Chooser.addItem(key);
-            }
-            graphs = GraphUtility.getGraphs(games);
-
-            setViewer(0, 0);
         } else if (fileLoc.substring(fileLoc.length()-4).equals("jsca")) {
-            pgn = false;
-            jsca = new JSCAParser(fileLoc);
-            setViewer(1, 0, true, true);
+            JSCAParser jsca = new JSCAParser(fileLoc);
+            games = (LinkedList<Game>) jsca.getGamesList();
         }
+        
+        Set<String> keys = games.get(0).getVarData().keySet();
+        for (String key : keys) {
+            Variable_Chooser.addItem(key);
+        }
+        graphs = GraphUtility.getGraphs(games);
+        
+        setViewer(0, 0);
     }
 
     /**
@@ -851,37 +796,13 @@ public class GraphicalViewer extends javax.swing.JFrame {
     private javax.swing.JPanel writerPanel;
     // End of variables declaration//GEN-END:variables
 
-    //Set the viewer to a new game and ply (.jsca only)
-    private void setViewer(int game, int ply, boolean goToNext, boolean pos) {
-        int num;
-        if (pos) {
-            num = 1;
-        } else {
-            num = -1;
-        }
-        Game g = jsca.get(game);
-        if (g == null) {
-            if (goToNext && tries < 1000) {
-                setViewer(game + 1, 0, true, pos);
-                tries += num;
-                return;
-            }
-        }
-        try {
-            setViewer(g, game, ply);
-        } catch (Exception e) {
-        }
-    }
-
-    //Set the viewer to a new game and ply (.pgn only)
-    private void setViewer(int game, int ply) {
-        setViewer(games.get(game) ,game, ply);
-    }
     
-    // Neutral setViewer (pgn and jsca)
-    private void setViewer(Game g, int game, int ply) {
-        String viewer = "";
+    //Set the viewer to a new game and ply   // Neutral setViewer (pgn and jsca)
+    private void setViewer(int game, int ply) {
+        Game g = games.get(game);
+        // If g in null, will throw NullPointerException here
         String[][] board = g.getAllBoards().get(ply).getAll();
+        String viewer = "";
         for (String[] r : board) {
             for (String c : r) {
                 viewer += "|";
@@ -953,7 +874,7 @@ public class GraphicalViewer extends javax.swing.JFrame {
         this.Variable_Viewer_Textpane.setText(variables);
         
         this.Game_Label.setText("Game ID: " + g.getId());
-        this.Ply_Label.setText("Ply: " + (ply + 1));
+        this.Ply_Label.setText("Ply: " + ply + "/" + g.getPlyCount());
         this.currentGame = game;
         this.currentPly = ply;
     }

@@ -17,10 +17,10 @@ function GameLooper(initialGame, calcList) {
 	}
 	
 	// keep track of which calculators apply to this GL
-	this.calcs = [];
+	calcs = [];
 	if (arguments.length > 1) {
 		// only the driver should really be doing this, so don't worry about Java arrays at all
-		this.calcs = calcList.splice();	// Array.splice() is a copy
+		calcs = calcList.splice();	// Array.splice() is a copy
 	}
 	
 	//------------------------Methods------------------------
@@ -31,8 +31,8 @@ function GameLooper(initialGame, calcList) {
 			throw new Error("GameLooper - AlreadyInUse");
 		}
 		this.currentGame = game;
-		for (var i in this.calcs) {
-			this.calcs[i].reset();
+		for (var i in calcs) {
+			calcs[i].reset();
 		}
 	}
 
@@ -52,7 +52,7 @@ function GameLooper(initialGame, calcList) {
 			throw new TypeError("GameLooper - NotABonafideCalc");
 		}
 		oneCalc.reset();
-		this.calcs.push(oneCalc);
+		calcs.push(oneCalc);
 	}
 	
 	// this is like the most important part
@@ -102,8 +102,8 @@ function GameLooper(initialGame, calcList) {
 		print("Reading Game: " + currentGame.getId());
 		
 		// for every var/calculator we track ...
-		for (var i = 0; i < this.calcs.length; i++) {
-			var calcName = this.calcs[i].name;
+		for (var i = 0; i < calcs.length; i++) {
+			var calcName = calcs[i].name;
 			
 			// ... print out what the data is
 			print("\tCalculator:" + calcName);

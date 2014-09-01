@@ -23,7 +23,7 @@ import java.util.Iterator;
  *
  * @author Sam
  */
-public class Game {
+public class Game implements Comparable{
 
     private ArrayList<Board> turns; //The list of boards
     private int winner; //0 for draws, 1 for white, 2 for black
@@ -70,6 +70,15 @@ public class Game {
         }
         ret += "]";
         return ret;
+    }
+    
+    @Override
+    public int compareTo(Object o) {
+        if (!(o instanceof Game)) {
+            return 0;
+        }
+        // change in id is either positive or negative, (or zero if the same)
+        return this.getId() - ((Game)o).getId();
     }
 
     /**

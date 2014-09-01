@@ -171,6 +171,24 @@ public class JSCAParser {
             }
         }
     }
+    
+    // Let me get s Game List, like the pgn parser does
+    public LinkedList<Game> getGamesList() {
+        // Define the list to return
+        LinkedList<Game> interperetedGameList = new LinkedList<Game>();
+        
+        // For every game
+        for (Integer key : mappedByID.keySet()) {
+            // Add to the list
+            interperetedGameList.add(this.get(key));
+        }
+        
+        // Make it look nice
+        java.util.Collections.sort(interperetedGameList);
+        
+        // Return the list, done
+        return interperetedGameList;
+    }
 
     /**
      * Parses string of moves into a list of boards. This is an internal method.

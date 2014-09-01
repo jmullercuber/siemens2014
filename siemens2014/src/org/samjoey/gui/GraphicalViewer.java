@@ -758,6 +758,8 @@ public class GraphicalViewer extends javax.swing.JFrame {
                             //    parserProgress.setValue(Parser.progress);
                             //}
                         }
+                        // finally
+                        parserProgress.setValue(parserProgress.getMaximum());
                     }
                 };
                 thread.start();
